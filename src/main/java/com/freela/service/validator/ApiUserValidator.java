@@ -14,6 +14,8 @@ import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.util.StringUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +23,8 @@ import java.util.List;
 
 @Singleton
 public class ApiUserValidator {
+	private static final Logger log = LoggerFactory.getLogger(ApiUserValidator.class);
+
 	public static final List<Role> ADMIN_ROLE = new ArrayList<>() { { add(Role.ADMIN); } };
 	public static final List<Role> CUSTOMER_ROLE = new ArrayList<>() { { add(Role.CUSTOMER); } };
 
@@ -68,16 +72,11 @@ public class ApiUserValidator {
 
 	public void checkPassword(ApiUser apiUser, String password) {
 		try {
-			if (apiUser == null
-					|| password == null
-					|| apiUser.getPasswordHash() == null
-					|| !apiUser.getPasswordHash().equals(passwordUtils.hash(
-							password, apiUser.getPasswordSalt(), apiUser.getPasswordPepper()))
-			) {
+			if (passwordUtils.isValidPassword(apiUser, password)) {
 				throw new ForbiddenException("Invalid email or password");
 			}
 		} catch (Exception e) {
-			//TODO log exception
+			log.error("checkPassword: error while checking password", e);
 			throw new ForbiddenException("Invalid email or password");
 		}
 	}

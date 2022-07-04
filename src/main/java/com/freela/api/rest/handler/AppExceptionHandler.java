@@ -22,7 +22,7 @@ import javax.persistence.PersistenceException;
 @Singleton
 @Requires(classes = {Exception.class, ExceptionHandler.class})
 public class AppExceptionHandler implements ExceptionHandler<Exception, HttpResponse<?>> {
-	private static final Logger LOG = LoggerFactory.getLogger(AppExceptionHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(AppExceptionHandler.class);
 
 	@Inject
 	HandlerUtils handlerUtils;
@@ -60,7 +60,7 @@ public class AppExceptionHandler implements ExceptionHandler<Exception, HttpResp
 			}
 		}
 
-		LOG.error("Unexpected Exception", exception);
+		log.error("Unexpected Exception", exception);
 
 		errorDTO.setErrorCode("500");
 		errorDTO.setErrorMessage("Unexpected Exception");

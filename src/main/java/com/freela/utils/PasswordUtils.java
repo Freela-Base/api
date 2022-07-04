@@ -1,5 +1,6 @@
 package com.freela.utils;
 
+import com.freela.database.model.ApiUser;
 import jakarta.inject.Singleton;
 
 import javax.crypto.SecretKeyFactory;
@@ -24,6 +25,14 @@ public class PasswordUtils {
 
 	public PasswordUtils() throws NoSuchAlgorithmException {
 		factory = SecretKeyFactory.getInstance(HASH_ALGORITHM);
+	}
+
+	public boolean isValidPassword(ApiUser apiUser, String password) throws InvalidKeySpecException {
+		return apiUser == null
+				|| password == null
+				|| apiUser.getPasswordHash() == null
+				|| !apiUser.getPasswordHash().equals(
+						hash(password, apiUser.getPasswordSalt(), apiUser.getPasswordPepper()));
 	}
 
 	public String hash(String password, String salt, String pepper) throws InvalidKeySpecException {
