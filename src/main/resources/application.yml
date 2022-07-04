@@ -1,0 +1,42 @@
+micronaut:
+  application:
+    name: api
+  server:
+    port: ${SERVER_PORT:8080}
+  security:
+    authentication: bearer
+    token:
+      jwt:
+        generator:
+          access-token:
+            expiration: 86400
+          refresh-token:
+            secret: '"${JWT_REFRESH_TOKEN_SECRET:cGxlYWNlQ1hhbmdlVGhpc1NlY4JldEZvckF0ZXdPbmU}"'
+        signatures:
+          secret:
+            generator:
+              secret: '"${JWT_TOKEN_SECRET:cGxlYXNlQ2hhbmdlVGhpc1NlY3JldEZvckFOZXdPbmU}"'
+              jws-algorithm: HS256
+pem:
+  path: /Users/fernandomolina/fun/freela/base/api/rsa-freela-base.pem
+datasources:
+  default:
+    url: jdbc:postgresql://${DATABASE_SERVER_URL:localhost}:${DATABASE_SERVER_PORT:5432}/freela
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:monitora}
+    driverClassName: org.postgresql.Driver
+    schema-generate: CREATE_DROP
+    dialect: POSTGRES
+jpa:
+  default:
+    packages-to-scan:
+      - 'com.freela.database.model'
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+        show_sql: true
+netty:
+  default:
+    allocator:
+      max-order: 3
