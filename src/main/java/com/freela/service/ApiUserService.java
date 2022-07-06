@@ -34,8 +34,6 @@ import java.util.stream.Collectors;
 public class ApiUserService {
 	private static final Logger log = LoggerFactory.getLogger(ApiUserService.class);
 
-	//TODO add logs for all controllers and services
-	//TODO add general exception handler
 	//TODO Set this as configuration in application.yaml
 	private static final Integer RECOVERY_CODE_SIZE = 128;
 	private static final Integer RECOVERY_CODE_VALID_HOURS = 3;
