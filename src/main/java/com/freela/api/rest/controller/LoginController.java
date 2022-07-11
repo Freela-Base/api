@@ -43,15 +43,18 @@ public class LoginController {
 			@Body @Valid CredentialsDto usernamePasswordCredentials,
 			HttpRequest<?> request
 	) {
-		return Flux.from(this.authenticator.authenticate(request, usernamePasswordCredentials)).map((authenticationResponse) -> {
-			if (authenticationResponse.isAuthenticated() && authenticationResponse.getAuthentication().isPresent()) {
-				Authentication authentication = authenticationResponse.getAuthentication().get();
-				this.eventPublisher.publishEvent(new LoginSuccessfulEvent(authentication));
-				return this.loginHandler.loginSuccess(authentication, request);
-			} else {
-				this.eventPublisher.publishEvent(new LoginFailedEvent(authenticationResponse));
-				return this.loginHandler.loginFailed(authenticationResponse, request);
-			}
-		}).defaultIfEmpty(HttpResponse.status(HttpStatus.UNAUTHORIZED));
+		return Flux.from(this.authenticator.authenticate(request, usernamePasswordCredentials))
+				.map((authenticationResponse) -> {
+					if (authenticationResponse.isAuthenticated()
+							&& authenticationResponse.getAuthentication().isPresent()
+					) {
+						Authentication authentication = authenticationResponse.getAuthentication().get();
+						this.eventPublisher.publishEvent(new LoginSuccessfulEvent(authentication));
+						return this.loginHandler.loginSuccess(authentication, request);
+					} else {
+						this.eventPublisher.publishEvent(new LoginFailedEvent(authenticationResponse));
+						return this.loginHandler.loginFailed(authenticationResponse, request);
+					}
+				}).defaultIfEmpty(HttpResponse.status(HttpStatus.UNAUTHORIZED));
 	}
 }

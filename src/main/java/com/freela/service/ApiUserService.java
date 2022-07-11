@@ -13,6 +13,7 @@ import com.freela.service.validator.FieldValidator;
 import com.freela.service.validator.PageValidator;
 import com.freela.utils.PasswordUtils;
 import com.freela.utils.RoleUtils;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.data.model.Page;
@@ -35,11 +36,17 @@ import java.util.stream.Collectors;
 public class ApiUserService {
 	private static final Logger log = LoggerFactory.getLogger(ApiUserService.class);
 
-	//TODO Set this as configuration in application.yaml
-	private static final Integer RECOVERY_CODE_SIZE = 128;
-	private static final Integer RECOVERY_CODE_VALID_HOURS = 3;
-	private static final Integer PASSWORD_SALT_SIZE = 32;
-	private static final Integer PASSWORD_PEPPER_SIZE = 32;
+	@Value("${com.freela.service.api-user.recovery-code.size:128}")
+	private Integer RECOVERY_CODE_SIZE;
+
+	@Value("${com.freela.service.api-user.recovery-code.valid-time:10800}")
+	private Integer RECOVERY_CODE_VALID_TIME;
+
+	@Value("${com.freela.service.api-user.password.salt-size:32}")
+	private Integer PASSWORD_SALT_SIZE;
+
+	@Value("${com.freela.service.api-user.password.pepper-size:32}")
+	private Integer PASSWORD_PEPPER_SIZE;
 
 	@Inject
 	PasswordUtils passwordUtils;
@@ -75,7 +82,7 @@ public class ApiUserService {
 
 		//Set recovery information for user validation
 		newApiUser.setRecoveryCode(passwordUtils.getRandomString(RECOVERY_CODE_SIZE));
-		newApiUser.setRecoveryCodeValidUntil(OffsetDateTime.now().plusHours(RECOVERY_CODE_VALID_HOURS));
+		newApiUser.setRecoveryCodeValidUntil(OffsetDateTime.now().plusSeconds(RECOVERY_CODE_VALID_TIME));
 		newApiUser.setRoles(Set.of(Role.CUSTOMER));
 
 		setApiUserPassword(newApiUser, password);
@@ -225,7 +232,7 @@ public class ApiUserService {
 		apiUserRepository.update(
 				Objects.requireNonNull(apiUser).getId(),
 				passwordUtils.getRandomString(RECOVERY_CODE_SIZE),
-				OffsetDateTime.now().plusHours(RECOVERY_CODE_VALID_HOURS)
+				OffsetDateTime.now().plusSeconds(RECOVERY_CODE_VALID_TIME)
 		);
 
 		// TODO send email with recovery code

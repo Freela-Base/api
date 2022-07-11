@@ -43,3 +43,16 @@ netty:
   default:
     allocator:
       max-order: 3
+
+com:
+  freela:
+    service:
+      api-user:
+        recovery-code:
+          size: 128
+          valid-time: 10800
+        password:
+          salt-size: 32
+          pepper-size: 32
+      refresh-token:
+        expiration-time: 86400

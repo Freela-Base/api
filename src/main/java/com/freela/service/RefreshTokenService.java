@@ -7,6 +7,7 @@ import com.freela.database.model.Device;
 import com.freela.database.model.RefreshToken;
 import com.freela.database.repository.RefreshTokenRepository;
 import com.freela.service.validator.RefreshTokenValidator;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.security.authentication.AuthenticationFailureReason;
 import io.micronaut.security.authentication.AuthenticationResponse;
 import jakarta.inject.Inject;
@@ -24,8 +25,8 @@ import java.util.stream.Collectors;
 public class RefreshTokenService {
 	private static final Logger log = LoggerFactory.getLogger(RefreshTokenService.class);
 
-	//TODO add this property to application.yml
-	private static final Long REFRESH_TOKEN_EXPIRATION_TIME = 86400L;
+	@Value("${com.freela.service.refresh-token.expiration-time:86400}")
+	private Long REFRESH_TOKEN_EXPIRATION_TIME;
 
 	@Inject
 	RefreshTokenValidator refreshTokenValidator;
