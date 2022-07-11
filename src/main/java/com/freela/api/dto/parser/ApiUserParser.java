@@ -17,11 +17,7 @@ public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto> {
 	DateTimeUtils dateTimeUtils;
 
 	@Override
-	public ApiUserDto toDto(ApiUser apiUser) {
-		if(apiUser == null) {
-			return null;
-		}
-
+	public ApiUserDto dtoParser(ApiUser apiUser) {
 		ApiUserDto apiUserDto = new ApiUserDto();
 		apiUserDto.setId(apiUser.getId());
 		if(org.hibernate.Hibernate.isInitialized(apiUser)) {
@@ -41,11 +37,7 @@ public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto> {
 	}
 
 	@Override
-	public ApiUser toModel(ApiUserDto contactDTO) {
-		if(contactDTO == null) {
-			return null;
-		}
-
+	public ApiUser modelParser(ApiUserDto contactDTO) {
 		ApiUser contact = new ApiUser();
 		contact.setId(contactDTO.getId());
 		contact.setName(contactDTO.getName());

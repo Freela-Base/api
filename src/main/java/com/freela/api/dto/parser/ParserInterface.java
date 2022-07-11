@@ -9,8 +9,24 @@ import java.util.List;
 import java.util.Objects;
 
 public interface ParserInterface<MODEL extends ModelInterface, DTO extends DtoInterface> {
-	DTO toDto(MODEL model);
-	MODEL toModel(DTO dto);
+	DTO dtoParser(MODEL model);
+	MODEL modelParser(DTO dto);
+
+	default DTO toDto(MODEL model) {
+		if (model == null) {
+			return null;
+		}
+
+		return dtoParser(model);
+	}
+
+	default MODEL toModel(DTO dto) {
+		if (dto == null) {
+			return null;
+		}
+
+		return modelParser(dto);
+	}
 
 	default PageDto<DTO> toPagedDto(Page<MODEL> pagedModels) {
 		if (pagedModels == null) {
