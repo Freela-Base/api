@@ -1,9 +1,14 @@
 package com.freela.api.rest.authentication;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.freela.utils.DateTimeUtils;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.security.token.jwt.render.BearerAccessRefreshToken;
+import jakarta.inject.Inject;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 
 @Bean
@@ -12,7 +17,9 @@ public class CustomBearerAccessToken extends BearerAccessRefreshToken {
 	@JsonProperty("api_user_id")
 	private Long apiUserId;
 
-//TODO change refresh token type to CustomBearerAccessToken
+	@JsonProperty("expires_at")
+	private String expiresAt;
+
 	public CustomBearerAccessToken(
 			String username,
 			Collection<String> roles,
@@ -20,10 +27,12 @@ public class CustomBearerAccessToken extends BearerAccessRefreshToken {
 			String accessToken,
 			String refreshToken,
 			String tokenType,
-			Long apiUserId
+			Long apiUserId,
+			String expiresAt
 	) {
 		super(username, roles, expiresIn, accessToken, refreshToken, tokenType);
 		this.apiUserId = apiUserId;
+		this.expiresAt = expiresAt;
 	}
 
 	public Long getApiUserId() {
@@ -32,5 +41,13 @@ public class CustomBearerAccessToken extends BearerAccessRefreshToken {
 
 	public void setApiUserId(Long apiUserId) {
 		this.apiUserId = apiUserId;
+	}
+
+	public String getExpiresAt() {
+		return expiresAt;
+	}
+
+	public void setExpiresAt(String expiresAt) {
+		this.expiresAt = expiresAt;
 	}
 }

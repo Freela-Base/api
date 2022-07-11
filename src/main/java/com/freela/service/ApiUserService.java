@@ -3,6 +3,7 @@ package com.freela.service;
 import com.freela.api.rest.authentication.enums.AuthAttributes;
 import com.freela.database.enums.Role;
 import com.freela.database.model.ApiUser;
+import com.freela.database.model.Device;
 import com.freela.database.repository.ApiUserRepository;
 import com.freela.exception.ApiException;
 import com.freela.service.parameter.ApiUserSearchRequest;
@@ -56,9 +57,12 @@ public class ApiUserService {
 	ApiUserRepository apiUserRepository;
 
 	@Inject
+	DeviceService deviceService;
+
+	@Inject
 	RoleUtils roleUtils;
 
-	public ApiUser save(
+	public ApiUser create(
 			@NonNull ApiUser newApiUser,
 			@NonNull String password
 	) throws InvalidKeySpecException {
@@ -110,20 +114,20 @@ public class ApiUserService {
 		}
 	}
 
-	public ApiUser getById(Long id, Long authenticationId, Set<Role> authenticationRoles) {
+	public Optional<ApiUser> getById(Long id, Long authenticationId, Set<Role> authenticationRoles) {
 		log.info("findById: { apiUserRequestId: {}, authenticationId: {}, authenticationRoles: {} }",
 				id, authenticationId, authenticationRoles);
 		apiUserValidator.validateUserIdAndRoles(id, authenticationId, authenticationRoles, ApiUserValidator.ADMIN_ROLE);
-		return apiUserRepository.findById(id).orElse(null);
+		return apiUserRepository.findById(id);
 	}
 
-	public AuthenticationResponse authenticate(String email, String password) {
-		log.info("authenticate: { email: {}, isPasswordPresent: {} }",
-				email, StringUtils.isNotEmpty(password) ? "true" : "false");
+	public AuthenticationResponse authenticate(String email, String password, Device device) {
+		log.info("authenticate: { email: {}, isPasswordPresent: {}, device: {} }",
+				email, StringUtils.isNotEmpty(password) ? "true" : "false", device);
 
 		ApiUser apiUser = apiUserRepository.findByEmailAndValidatedTrueAndDeletedFalse(email).orElse(null);
-
 		apiUserValidator.checkPassword(apiUser, password);
+		device = deviceService.retrieveOrCreate(device);
 
 		Collection<String> roles = Objects.requireNonNull(apiUser)
 				.getRoles().stream()
@@ -132,6 +136,7 @@ public class ApiUserService {
 
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(AuthAttributes.API_USER_ID.toString(), apiUser.getId());
+		attributes.put(AuthAttributes.DEVICE_ID.toString(), device.getDeviceId());
 		return AuthenticationResponse.success(apiUser.getEmail(), roles, attributes);
 	}
 
@@ -175,19 +180,15 @@ public class ApiUserService {
 
 		apiUserValidator.validateUser(apiUser, new ApiException.Source(
 				ApiException.Location.BODY,
-				"User Validation",
 				"recoveryCode",
 				recoveryCode,
 				"Valid Token"
 		));
 
 		if(Objects.requireNonNull(apiUser).isValidated()
-				|| StringUtils.isNotEmpty(password) && apiUser.getPasswordHash() == null) {
-			apiUserValidator.validatePassword(password, new ApiException.Source(
-					ApiException.Location.BODY,
-					"User Validation",
-					"password"
-			));
+				|| StringUtils.isNotEmpty(password) && apiUser.getPasswordHash() == null
+		) {
+			apiUserValidator.validatePassword(password);
 			setApiUserPassword(apiUser, password);
 		}
 
@@ -207,7 +208,6 @@ public class ApiUserService {
 
 		fieldValidator.validateString(email, new ApiException.Source(
 				ApiException.Location.QUERY,
-				"Forgot Password",
 				"email",
 				"Empty or Null",
 				"User email"
@@ -217,7 +217,6 @@ public class ApiUserService {
 
 		apiUserValidator.validateUser(apiUser, new ApiException.Source(
 				ApiException.Location.QUERY,
-				"Forgot Password",
 				"email",
 				email,
 				"User email"

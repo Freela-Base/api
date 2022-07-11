@@ -19,7 +19,6 @@ public class PageValidator {
 		if(pageNumber < 0) {
 			throw new InvalidParameterException("Invalid page number", new ApiException.Source(
 					ApiException.Location.QUERY,
-					null,
 					"pageNumber",
 					String.format("%s", pageNumber),
 					"Valid page number"
@@ -37,7 +36,6 @@ public class PageValidator {
 		if(pageSize <= 0) {
 			throw new InvalidParameterException("Invalid page size", new ApiException.Source(
 					ApiException.Location.QUERY,
-					null,
 					"pageSize",
 					String.format("%s", pageSize),
 					"Page size must be grater than 0"
@@ -47,7 +45,6 @@ public class PageValidator {
 		if(pageSize > MAX_PAGE_SIZE) {
 			throw new InvalidParameterException("Invalid page size", new ApiException.Source(
 					ApiException.Location.QUERY,
-					null,
 					"pageSize",
 					String.format("%s", pageSize),
 					String.format("Page should not be higher than %s", MAX_PAGE_SIZE)

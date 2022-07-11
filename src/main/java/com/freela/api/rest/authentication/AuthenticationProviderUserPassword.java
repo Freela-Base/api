@@ -1,5 +1,8 @@
 package com.freela.api.rest.authentication;
 
+import com.freela.api.dto.CredentialsDto;
+import com.freela.api.dto.parser.DeviceParser;
+import com.freela.database.model.Device;
 import com.freela.service.ApiUserService;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
@@ -18,6 +21,9 @@ public class AuthenticationProviderUserPassword implements AuthenticationProvide
 	@Inject
 	ApiUserService apiUserService;
 
+	@Inject
+	DeviceParser deviceParser;
+
 	@Override
 	public Publisher<AuthenticationResponse> authenticate(
 			@Nullable HttpRequest<?> httpRequest,
@@ -25,14 +31,20 @@ public class AuthenticationProviderUserPassword implements AuthenticationProvide
 	) {
 		log.info("authenticate: { identity: {} }", authenticationRequest.getIdentity());
 		return Flux.create(emitter -> {
-			AuthenticationResponse userDetails = apiUserService.authenticate(
-					(String)authenticationRequest.getIdentity(),
-					(String)authenticationRequest.getSecret());
+			AuthenticationResponse userDetails = null;
+			if(authenticationRequest instanceof CredentialsDto credentials) {
+				Device device =  deviceParser.toModel(credentials.getDevice());
+				userDetails = apiUserService.authenticate(
+						credentials.getIdentity(),
+						credentials.getSecret(),
+						device);
+			}
+
 			if (userDetails != null) {
 				emitter.next(userDetails);
 				emitter.complete();
 			} else {
-				emitter.error(new AuthenticationException( new AuthenticationFailed()));
+				emitter.error(new AuthenticationException(new AuthenticationFailed()));
 			}
 		}, FluxSink.OverflowStrategy.ERROR);
 	}

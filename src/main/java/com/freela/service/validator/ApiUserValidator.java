@@ -51,16 +51,15 @@ public class ApiUserValidator {
 		}
 	}
 
-	public void validatePassword(String password, ApiException.Source source) {
+	public void validatePassword(String password) {
 		//TODO add more complex validations for password
 		// i.e. Upper Case and Lower Case letter, Number, Special Character (create regex?)
 		if (password == null || password.length() < 8) {
-			if(source != null) {
-				source.setValue("***");
-				source.setExpected("Min length: 8");
-			}
-
-			throw new InvalidParameterException("Invalid Password", source);
+			throw new InvalidParameterException("Invalid Password", new ApiException.Source(
+					ApiException.Location.BODY,
+					"password",
+					"***",
+					"Min length: 8"));
 		}
 	}
 
@@ -96,7 +95,6 @@ public class ApiUserValidator {
 		) {
 			throw new InvalidParameterException("Empty search criteria", new ApiException.Source(
 					ApiException.Location.QUERY,
-					"Search",
 					"[email, name]",
 					"Empty or null",
 					"Valid search criteria"
@@ -126,17 +124,12 @@ public class ApiUserValidator {
 		// Validate if there is one user already saved
 		isNullOrNotValidated(savedApiUser, new ApiException.Source(
 				ApiException.Location.BODY,
-				"User Creation",
 				"email",
 				newApiUser.getEmail(),
 				"Unregistered email"
 		));
 		if(StringUtils.isNotEmpty(password)) {
-			validatePassword(password, new ApiException.Source(
-					ApiException.Location.BODY,
-					"User Creation",
-					"password"
-			));
+			validatePassword(password);
 		}
 	}
 }

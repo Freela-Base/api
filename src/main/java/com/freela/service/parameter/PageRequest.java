@@ -2,7 +2,6 @@ package com.freela.service.parameter;
 
 import io.micronaut.core.annotation.Introspected;
 
-//TODO Bring those request parameters to service folder (for page request, replace individual parameter calls with object)
 @Introspected
 public class PageRequest {
 	Integer pageSize;

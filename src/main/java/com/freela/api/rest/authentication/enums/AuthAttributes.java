@@ -2,6 +2,7 @@ package com.freela.api.rest.authentication.enums;
 
 public enum AuthAttributes {
 	API_USER_ID("api_user_id"),
+	DEVICE_ID("device_id"),
 	ROLES("roles");
 	private final String text;
 

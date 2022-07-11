@@ -1,10 +1,12 @@
 package com.freela.api.rest.controller;
 
-import com.freela.api.model.ApiUserDto;
-import com.freela.api.model.PageDto;
-import com.freela.api.model.parser.ApiUserParser;
+import com.freela.api.dto.ApiUserDto;
+import com.freela.api.dto.PageDto;
+import com.freela.api.dto.parser.ApiUserParser;
 import com.freela.api.utils.AuthenticationUtils;
 import com.freela.database.model.ApiUser;
+import com.freela.exception.ApiException;
+import com.freela.exception.NotFoundException;
 import com.freela.service.ApiUserService;
 import com.freela.service.parameter.ApiUserSearchRequest;
 import com.freela.service.parameter.PageRequest;
@@ -24,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Locale;
+import java.util.Optional;
 
 @ExecuteOn(TaskExecutors.IO)
 @Controller("/api-users")
@@ -44,12 +48,22 @@ public class ApiUserController {
 	@Get("/{apiUserId}")
 	public HttpResponse<ApiUserDto> get(Long apiUserId, Authentication authentication) {
 		log.info("get: { apiUserId: {} }", apiUserId);
-		ApiUserDto contactDTO = apiUserParser.toDto(apiUserService.getById(
+		Optional<ApiUser> apiUser = apiUserService.getById(
 				apiUserId,
-				authenticationUtils.getId(authentication),
-				authenticationUtils.getRoles(authentication)
-		));
-		return HttpResponse.ok(contactDTO);
+				authenticationUtils.getApiUserId(authentication),
+				authenticationUtils.getRoles(authentication));
+
+		if (apiUser.isEmpty()) {
+			throw new NotFoundException("API user not found", new ApiException.Source(
+					ApiException.Location.PATH,
+					"apiUserId",
+					String.format("%s", apiUserId),
+					"Valid API User ID"
+			));
+		}
+
+		ApiUserDto apiUserDto = apiUserParser.toDto(apiUser.get());
+		return HttpResponse.ok(apiUserDto);
 	}
 
 	@Put("/{apiUserId}")
@@ -63,7 +77,7 @@ public class ApiUserController {
 		apiUserService.update(
 				apiUserId,
 				apiUser,
-				authenticationUtils.getId(authentication),
+				authenticationUtils.getApiUserId(authentication),
 				authenticationUtils.getRoles(authentication)
 		);
 		return HttpResponse.ok(apiUserDto);
@@ -89,7 +103,7 @@ public class ApiUserController {
 	@PermitAll
 	public HttpResponse<ApiUserDto> create(@Body @Valid ApiUserDto apiUserDto) throws InvalidKeySpecException {
 		log.info("create: { apiUserDto: {} }", apiUserDto);
-		ApiUser contact = apiUserService.save(apiUserParser.toModel(apiUserDto), apiUserDto.getPassword());
+		ApiUser contact = apiUserService.create(apiUserParser.toModel(apiUserDto), apiUserDto.getPassword());
 		return HttpResponse.ok(apiUserParser.toDto(contact));
 	}
 

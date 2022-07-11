@@ -1,6 +1,6 @@
 package com.freela.api.rest.handler.exception;
 
-import com.freela.api.model.ErrorDto;
+import com.freela.api.dto.ErrorDto;
 import com.freela.api.utils.ExceptionHandlerUtils;
 import com.freela.exception.ApiException;
 import io.micronaut.context.annotation.Requires;
@@ -13,8 +13,6 @@ import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.PersistenceException;
-
 @Produces
 @Singleton
 @Requires(classes = {Exception.class, ExceptionHandler.class})
@@ -26,27 +24,19 @@ public class GeneralExceptionHandler implements ExceptionHandler<Exception, Http
 
 	@Override
 	public HttpResponse<ErrorDto> handle(HttpRequest request, Exception exception) {
+		log.info("handle: { requestPath: {}, exception: {} }", request.getPath(), exception.getMessage());
 		ErrorDto errorDto = new ErrorDto();
 
 		if(exception instanceof ApiException) {
 			errorDto.setErrorMessage(exception.getMessage());
 			errorDto.setSource(((ApiException) exception).getSource());
 			errorDto.setErrorCode("400");
+			errorDto.setSource(exceptionHandlerUtils.populateSourceResource(errorDto.getSource(), request));
 			return HttpResponse.badRequest(errorDto);
 		}
 
-		if(exception instanceof PersistenceException) {
-			Throwable cause = exceptionHandlerUtils.getFirstException(exception);
-			if(cause != null && cause.getMessage() != null) {
-				if(cause.getMessage().contains("duplicate key value violates unique constraint")) {
-					errorDto.setErrorCode("499");
-					errorDto.setErrorMessage("Item already created");
-					return HttpResponse.badRequest(errorDto);
-				}
-			}
-		}
-
 		exceptionHandlerUtils.populateGenericError(errorDto, exception);
+		errorDto.setSource(exceptionHandlerUtils.populateSourceResource(errorDto.getSource(), request));
 		return HttpResponse.serverError(errorDto);
 	}
 }

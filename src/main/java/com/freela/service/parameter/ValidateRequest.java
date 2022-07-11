@@ -5,7 +5,6 @@ import io.micronaut.core.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
 
-//TODO Bring those request parameters to service folder
 @Introspected
 public class ValidateRequest {
 	@NotNull

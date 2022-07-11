@@ -1,7 +1,7 @@
-package com.freela.api.model.parser;
+package com.freela.api.dto.parser;
 
-import com.freela.api.model.DtoInterface;
-import com.freela.api.model.PageDto;
+import com.freela.api.dto.DtoInterface;
+import com.freela.api.dto.PageDto;
 import com.freela.database.model.ModelInterface;
 import io.micronaut.data.model.Page;
 

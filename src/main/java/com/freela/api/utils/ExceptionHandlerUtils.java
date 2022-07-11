@@ -1,7 +1,9 @@
 package com.freela.api.utils;
 
-import com.freela.api.model.ErrorDto;
+import com.freela.api.dto.ErrorDto;
+import com.freela.exception.ApiException;
 import io.micronaut.core.annotation.NonNull;
+import io.micronaut.http.HttpRequest;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,5 +29,14 @@ public class ExceptionHandlerUtils {
 			throwable = throwable.getCause();
 
 		return throwable;
+	}
+
+	public ApiException.Source populateSourceResource(ApiException.Source source, HttpRequest<?> request) {
+		if (source == null) {
+			source = new ApiException.Source();
+		}
+
+		source.setResource(request.getPath());
+		return source;
 	}
 }

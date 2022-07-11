@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Entity
-@Table(name = "api_user", indexes = {
+@Table(indexes = {
 		@Index(name = "api_user_name_index", columnList = "name"),
 		@Index(name = "api_user_email_index", columnList = "email"),
 		@Index(name = "api_user_phone_number_index", columnList = "phoneNumber"),
@@ -17,7 +17,8 @@ import java.util.Set;
 })
 public class ApiUser implements ModelInterface {
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "api_user_seq")
+	@SequenceGenerator(name = "api_user_seq", allocationSize = 1)
 	private Long id;
 
 	@Column(length = 500, nullable = false)
@@ -49,7 +50,7 @@ public class ApiUser implements ModelInterface {
 
 	@DateCreated
 	@Column(nullable = false, columnDefinition = "timestamp with time zone")
-	private OffsetDateTime creationDateTime;
+	private OffsetDateTime creation;
 
 	@Column(length = 512, nullable = true)
 	private String recoveryCode;
@@ -132,12 +133,12 @@ public class ApiUser implements ModelInterface {
 		this.deleted = deleted;
 	}
 
-	public OffsetDateTime getCreationDateTime() {
-		return creationDateTime;
+	public OffsetDateTime getCreation() {
+		return creation;
 	}
 
-	public void setCreationDateTime(OffsetDateTime creationDateTime) {
-		this.creationDateTime = creationDateTime;
+	public void setCreation(OffsetDateTime creation) {
+		this.creation = creation;
 	}
 
 	public String getRecoveryCode() {
@@ -187,15 +188,10 @@ public class ApiUser implements ModelInterface {
 				", name='" + name + '\'' +
 				", phoneNumber='" + phoneNumber + '\'' +
 				", email='" + email + '\'' +
-				", passwordSalt='" + passwordSalt + '\'' +
-				", passwordPepper='" + passwordPepper + '\'' +
-				", passwordHash='" + passwordHash + '\'' +
 				", birthDate=" + birthDate +
 				", validated=" + validated +
 				", deleted=" + deleted +
-				", creationDateTime=" + creationDateTime +
-				", recoveryCode='" + recoveryCode + '\'' +
-				", recoveryCodeValidUntil=" + recoveryCodeValidUntil +
+				", creationDateTime=" + creation +
 				", roles=" + roles +
 				'}';
 	}

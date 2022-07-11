@@ -11,8 +11,12 @@ import java.util.Set;
 
 @Singleton
 public class AuthenticationUtils {
-	public Long getId(Authentication authentication) {
+	public Long getApiUserId(Authentication authentication) {
 		return (Long) authentication.getAttributes().get(AuthAttributes.API_USER_ID.toString());
+	}
+
+	public String getDeviceId(Authentication authentication) {
+		return (String) authentication.getAttributes().get(AuthAttributes.DEVICE_ID.toString());
 	}
 
 	public Set<Role> getRoles(Authentication authentication) {

@@ -1,15 +1,17 @@
-package com.freela.api.model.parser;
+package com.freela.api.dto.parser;
 
-import com.freela.api.model.ApiUserDto;
+import com.freela.api.dto.ApiUserDto;
 import com.freela.database.enums.Role;
 import com.freela.database.model.ApiUser;
 import com.freela.exception.ApiException;
 import com.freela.utils.DateTimeUtils;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import java.util.stream.Collectors;
 
-public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto>{
+@Singleton
+public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto> {
 
 	@Inject
 	DateTimeUtils dateTimeUtils;
@@ -51,7 +53,6 @@ public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto>{
 		contact.setPhoneNumber(contactDTO.getPhoneNumber());
 		contact.setBirthDate(dateTimeUtils.convertToDate(contactDTO.getBirthDate(), new ApiException.Source(
 				ApiException.Location.BODY,
-				"",
 				"contact",
 				contactDTO.getBirthDate(),
 				"Valid Date"

@@ -1,4 +1,4 @@
-package com.freela.api.model;
+package com.freela.api.dto;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.core.annotation.NonNull;

@@ -64,15 +64,15 @@ public class ApiException extends RuntimeException {
 		private String value;
 		private String expected;
 
-		public Source(Location location, String resource, String property) {
+		public Source() { }
+
+		public Source(Location location, String property) {
 			this.location = location;
-			this.resource = resource;
 			this.property = property;
 		}
 
-		public Source(Location location, String resource, String property, String value, String expected) {
+		public Source(Location location, String property, String value, String expected) {
 			this.location = location;
-			this.resource = resource;
 			this.property = property;
 			this.value = value;
 			this.expected = expected;

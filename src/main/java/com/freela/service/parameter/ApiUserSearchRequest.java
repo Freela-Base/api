@@ -5,7 +5,6 @@ import io.micronaut.core.annotation.Introspected;
 
 import java.util.List;
 
-//TODO Bring those request parameters to service folder
 @Introspected
 public class ApiUserSearchRequest {
 	List<Role> roles;

@@ -1,4 +1,4 @@
-package com.freela.api.model;
+package com.freela.api.dto;
 
 public interface DtoInterface {
 }
