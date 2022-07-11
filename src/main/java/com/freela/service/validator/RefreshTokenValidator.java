@@ -6,8 +6,6 @@ import com.freela.exception.ApiException;
 import com.freela.exception.InvalidParameterException;
 import jakarta.inject.Singleton;
 
-import java.util.Locale;
-
 @Singleton
 public class RefreshTokenValidator {
 

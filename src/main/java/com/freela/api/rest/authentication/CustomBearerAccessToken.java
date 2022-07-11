@@ -1,14 +1,9 @@
 package com.freela.api.rest.authentication;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.freela.utils.DateTimeUtils;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.security.token.jwt.render.BearerAccessRefreshToken;
-import jakarta.inject.Inject;
 
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Collection;
 
 @Bean

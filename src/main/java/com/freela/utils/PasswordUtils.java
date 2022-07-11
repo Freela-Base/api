@@ -46,10 +46,6 @@ public class PasswordUtils {
 		return B_64_ENCODER.encodeToString(hash);
 	}
 
-	public String getRandomString() {
-		return getRandomString(null);
-	}
-
 	public String getRandomString(Integer size) {
 		if (size == null || size < 0)
 			size = DEFAULT_RANDOM_STRING_LENGTH;

@@ -5,7 +5,6 @@ import com.freela.database.enums.Role;
 import com.freela.database.model.ApiUser;
 import com.freela.database.model.Device;
 import com.freela.database.model.RefreshToken;
-import com.freela.exception.InvalidParameterException;
 import com.freela.service.ApiUserService;
 import com.freela.service.DeviceService;
 import com.freela.service.RefreshTokenService;

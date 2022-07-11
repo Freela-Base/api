@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Locale;
 import java.util.Optional;
 
 @ExecuteOn(TaskExecutors.IO)
