@@ -3,10 +3,12 @@ package com.freela.api.rest.authentication;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.security.token.jwt.render.BearerAccessRefreshToken;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Collection;
 
 @Bean
+@Schema(name="Token", description="Token information")
 public class CustomBearerAccessToken extends BearerAccessRefreshToken {
 
 	@JsonProperty("api_user_id")

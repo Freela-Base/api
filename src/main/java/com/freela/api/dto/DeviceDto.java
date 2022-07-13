@@ -1,10 +1,12 @@
 package com.freela.api.dto;
 
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.NotBlank;
 
 @Introspected
+@Schema(name="Device", description="Device information")
 public class DeviceDto implements DtoInterface {
 	private Long id;
 	@NotBlank

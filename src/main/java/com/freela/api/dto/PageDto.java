@@ -2,11 +2,13 @@ package com.freela.api.dto;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.core.annotation.NonNull;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Introspected
+@Schema(name="Page", description="Page information")
 public class PageDto<T extends DtoInterface> {
 	List<T> content = new ArrayList<>();
 	Long totalSize;

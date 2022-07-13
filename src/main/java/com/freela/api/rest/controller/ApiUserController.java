@@ -1,9 +1,11 @@
 package com.freela.api.rest.controller;
 
 import com.freela.api.dto.ApiUserDto;
+import com.freela.api.dto.ErrorDto;
 import com.freela.api.dto.PageDto;
 import com.freela.api.dto.parser.ApiUserParser;
 import com.freela.api.utils.AuthenticationUtils;
+import com.freela.database.enums.Role;
 import com.freela.database.model.ApiUser;
 import com.freela.exception.ApiException;
 import com.freela.exception.NotFoundException;
@@ -11,6 +13,7 @@ import com.freela.service.ApiUserService;
 import com.freela.service.parameter.ApiUserSearchRequest;
 import com.freela.service.parameter.PageRequest;
 import com.freela.service.parameter.ValidateRequest;
+import io.micronaut.core.version.annotation.Version;
 import io.micronaut.data.model.Page;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
@@ -19,6 +22,10 @@ import io.micronaut.scheduling.annotation.ExecuteOn;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -28,6 +35,7 @@ import javax.validation.Valid;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Optional;
 
+@Version("1")
 @ExecuteOn(TaskExecutors.IO)
 @Controller("/api-users")
 @Secured(SecurityRule.IS_AUTHENTICATED)
@@ -44,7 +52,14 @@ public class ApiUserController {
 	@Inject
 	AuthenticationUtils authenticationUtils;
 
+	//TODO create teams and relate people to teams
+	//TODO add one ROLE per function
 	@Get("/{apiUserId}")
+	@Operation(operationId = "getApiUser")
+	@ApiResponse(responseCode = "200", description = "Successful operation")
+	@ApiResponse(responseCode = "400",
+			description = "Unsuccessful  operation",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
 	public HttpResponse<ApiUserDto> get(Long apiUserId, Authentication authentication) {
 		log.info("get: { apiUserId: {} }", apiUserId);
 		Optional<ApiUser> apiUser = apiUserService.getById(
@@ -66,6 +81,11 @@ public class ApiUserController {
 	}
 
 	@Put("/{apiUserId}")
+	@Operation(operationId = "updateApiUser")
+	@ApiResponse(responseCode = "200", description = "Successful operation")
+	@ApiResponse(responseCode = "400",
+			description = "Unsuccessful  operation",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
 	public HttpResponse<ApiUserDto> update(
 			@Body @Valid ApiUserDto apiUserDto,
 			Long apiUserId,
@@ -84,7 +104,12 @@ public class ApiUserController {
 
 	@Post("/validate")
 	@PermitAll
-	public HttpResponse<?> validate(@Body @Valid ValidateRequest validateRequest) throws InvalidKeySpecException {
+	@Operation(operationId = "validateApiUser")
+	@ApiResponse(responseCode = "200", description = "Successful operation")
+	@ApiResponse(responseCode = "400",
+			description = "Unsuccessful  operation",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
+	public HttpResponse<Void> validate(@Body @Valid ValidateRequest validateRequest) throws InvalidKeySpecException {
 		log.info("validate: { validateRequest: {} }", validateRequest);
 		apiUserService.validateApiUser(validateRequest.getRecoveryCode(), validateRequest.getPassword());
 		return HttpResponse.ok();
@@ -92,7 +117,12 @@ public class ApiUserController {
 
 	@Get("/forgot-password")
 	@PermitAll
-	public HttpResponse<?> forgotPassword(@QueryValue(value = "email") String email) {
+	@Operation(operationId = "forgotPassword")
+	@ApiResponse(responseCode = "200", description = "Successful operation")
+	@ApiResponse(responseCode = "400",
+			description = "Unsuccessful  operation",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
+	public HttpResponse<Void> forgotPassword(@QueryValue(value = "email") String email) {
 		log.info("forgotPassword: { email: {} }", email);
 		apiUserService.forgotPassword(email);
 		return HttpResponse.ok();
@@ -100,6 +130,11 @@ public class ApiUserController {
 
 	@Post
 	@PermitAll
+	@Operation(operationId = "createApiUser")
+	@ApiResponse(responseCode = "200", description = "Successful operation")
+	@ApiResponse(responseCode = "400",
+			description = "Unsuccessful  operation",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
 	public HttpResponse<ApiUserDto> create(@Body @Valid ApiUserDto apiUserDto) throws InvalidKeySpecException {
 		log.info("create: { apiUserDto: {} }", apiUserDto);
 		ApiUser contact = apiUserService.create(apiUserParser.toModel(apiUserDto), apiUserDto.getPassword());
@@ -107,7 +142,12 @@ public class ApiUserController {
 	}
 
 	@Get("/list{?pageRequest*}")
-	@Secured({"ADMIN"})
+	@Secured({})
+	@Operation(operationId = "listApiUsers")
+	@ApiResponse(responseCode = "200", description = "Successful operation")
+	@ApiResponse(responseCode = "400",
+			description = "Unsuccessful  operation",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
 	public HttpResponse<PageDto<ApiUserDto>> list(PageRequest pageRequest) {
 		log.info("list: { pageRequest: {} }", pageRequest);
 		if(pageRequest == null)
@@ -118,6 +158,11 @@ public class ApiUserController {
 	}
 
 	@Get("/search{?pageRequest*}{?apiUserSearchRequest*}")
+	@Operation(operationId = "searchApiUsers")
+	@ApiResponse(responseCode = "200", description = "Successful operation")
+	@ApiResponse(responseCode = "400",
+			description = "Unsuccessful  operation",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
 	public HttpResponse<PageDto<ApiUserDto>> search(
 			PageRequest pageRequest,
 			ApiUserSearchRequest apiUserSearchRequest,

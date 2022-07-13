@@ -17,13 +17,13 @@ import javax.persistence.PersistenceException;
 @Produces
 @Singleton
 @Requires(classes = {PersistenceException.class, ExceptionHandler.class})
-public class PersistenceExceptionHandler implements ExceptionHandler<PersistenceException, HttpResponse<?>> {
+public class PersistenceExceptionHandler implements ExceptionHandler<PersistenceException, HttpResponse<ErrorDto>> {
 	public static final Logger log = LoggerFactory.getLogger(PersistenceExceptionHandler.class);
 	@Inject
 	ExceptionHandlerUtils exceptionHandlerUtils;
 
 	@Override
-	public HttpResponse<?> handle(HttpRequest request, PersistenceException exception) {
+	public HttpResponse<ErrorDto> handle(HttpRequest request, PersistenceException exception) {
 		log.info("handle: { requestPath: {}, exception: {} }", request.getPath(), exception.getMessage());
 		ErrorDto errorDto = new ErrorDto();
 		errorDto.setSource(exceptionHandlerUtils.populateSourceResource(errorDto.getSource(), request));

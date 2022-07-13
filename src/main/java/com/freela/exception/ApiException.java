@@ -1,5 +1,7 @@
 package com.freela.exception;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class ApiException extends RuntimeException {
 	private Source source;
 
@@ -50,6 +52,7 @@ public class ApiException extends RuntimeException {
 		this.source = source;
 	}
 
+	@Schema(name="ErrorLocation", description="Indicate which part of the request the error was found")
 	public enum Location {
 		BODY,
 		HEADER,
@@ -57,6 +60,7 @@ public class ApiException extends RuntimeException {
 		QUERY
 	}
 
+	@Schema(name="ErrorDescription", description="Contains extra information about the error")
 	public static class Source {
 		private Location location;
 		private String resource;

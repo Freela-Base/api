@@ -2,8 +2,10 @@ package com.freela.api.dto;
 
 import com.freela.exception.ApiException;
 import io.micronaut.core.annotation.Introspected;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Introspected
+@Schema(name="Error", description="Error information")
 public class ErrorDto {
 	private String errorMessage;
 	private String errorCode;

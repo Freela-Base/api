@@ -16,14 +16,14 @@ import org.slf4j.LoggerFactory;
 @Produces
 @Singleton
 @Requires(classes = {NotFoundException.class, ExceptionHandler.class})
-public class NotFoundExceptionHandler implements ExceptionHandler<NotFoundException, HttpResponse<?>> {
+public class NotFoundExceptionHandler implements ExceptionHandler<NotFoundException, HttpResponse<ErrorDto>> {
 	public static final Logger log = LoggerFactory.getLogger(NotFoundExceptionHandler.class);
 
 	@Inject
 	ExceptionHandlerUtils exceptionHandlerUtils;
 
 	@Override
-	public HttpResponse<?> handle(HttpRequest request, NotFoundException exception) {
+	public HttpResponse<ErrorDto> handle(HttpRequest request, NotFoundException exception) {
 		log.info("handle: { requestPath: {}, exception: {} }", request.getPath(), exception.getMessage());
 		ErrorDto errorDto = new ErrorDto();
 		errorDto.setErrorMessage(exception.getMessage());

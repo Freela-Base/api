@@ -2,12 +2,14 @@ package com.freela.api.dto;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.core.util.StringUtils;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Introspected
+@Schema(name="ApiUser", description="Information about api user")
 public class ApiUserDto implements DtoInterface {
 	private Long id;
 	@NotBlank

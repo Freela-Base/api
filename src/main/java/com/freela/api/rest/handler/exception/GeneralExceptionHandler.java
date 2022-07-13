@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 @Produces
 @Singleton
 @Requires(classes = {Exception.class, ExceptionHandler.class})
-public class GeneralExceptionHandler implements ExceptionHandler<Exception, HttpResponse<?>> {
+public class GeneralExceptionHandler implements ExceptionHandler<Exception, HttpResponse<ErrorDto>> {
 	private static final Logger log = LoggerFactory.getLogger(GeneralExceptionHandler.class);
 
 	@Inject
