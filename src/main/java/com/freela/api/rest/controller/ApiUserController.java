@@ -52,7 +52,6 @@ public class ApiUserController {
 	AuthenticationUtils authenticationUtils;
 
 	//TODO create controller for roles
-	//TODO how to create first admin????
 	@Get("/{apiUserId}")
 	@Secured({"API_USER_GET"})
 	@Operation(operationId = "getApiUser")
