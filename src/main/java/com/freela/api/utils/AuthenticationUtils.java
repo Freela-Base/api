@@ -1,7 +1,7 @@
 package com.freela.api.utils;
 
 import com.freela.api.rest.authentication.enums.AuthAttributes;
-import com.freela.database.enums.Role;
+import com.freela.database.enums.ApiAction;
 import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.security.authentication.Authentication;
 import jakarta.inject.Singleton;
@@ -19,15 +19,15 @@ public class AuthenticationUtils {
 		return (String) authentication.getAttributes().get(AuthAttributes.DEVICE_ID.toString());
 	}
 
-	public Set<Role> getRoles(Authentication authentication) {
-		Set<Role> roles = new HashSet<>();
+	public Set<ApiAction> getApiActions(Authentication authentication) {
+		Set<ApiAction> apiActions = new HashSet<>();
 		if (authentication == null
 				|| CollectionUtils.isEmpty(authentication.getRoles())
 		) {
-			return roles;
+			return apiActions;
 		}
 
-		authentication.getRoles().forEach(r -> roles.add(Role.valueOf(r)));
-		return roles;
+		authentication.getRoles().forEach(r -> apiActions.add(ApiAction.valueOf(r)));
+		return apiActions;
 	}
 }

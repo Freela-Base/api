@@ -5,7 +5,6 @@ import com.freela.api.dto.ErrorDto;
 import com.freela.api.dto.PageDto;
 import com.freela.api.dto.parser.ApiUserParser;
 import com.freela.api.utils.AuthenticationUtils;
-import com.freela.database.enums.Role;
 import com.freela.database.model.ApiUser;
 import com.freela.exception.ApiException;
 import com.freela.exception.NotFoundException;
@@ -52,28 +51,55 @@ public class ApiUserController {
 	@Inject
 	AuthenticationUtils authenticationUtils;
 
-	//TODO create teams and relate people to teams
-	//TODO add one ROLE per function
+	//TODO create controller for roles
+	//TODO how to create first admin????
 	@Get("/{apiUserId}")
+	@Secured({"API_USER_GET"})
 	@Operation(operationId = "getApiUser")
 	@ApiResponse(responseCode = "200", description = "Successful operation")
 	@ApiResponse(responseCode = "400",
-			description = "Unsuccessful  operation",
+			description = "Unsuccessful operation",
 			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
-	public HttpResponse<ApiUserDto> get(Long apiUserId, Authentication authentication) {
+	@ApiResponse(responseCode = "404",
+			description = "User not found",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
+	public HttpResponse<ApiUserDto> get(Long apiUserId) {
 		log.info("get: { apiUserId: {} }", apiUserId);
-		Optional<ApiUser> apiUser = apiUserService.getById(
-				apiUserId,
-				authenticationUtils.getApiUserId(authentication),
-				authenticationUtils.getRoles(authentication));
+		Optional<ApiUser> apiUser = apiUserService.getById(apiUserId);
 
 		if (apiUser.isEmpty()) {
 			throw new NotFoundException("API user not found", new ApiException.Source(
 					ApiException.Location.PATH,
 					"apiUserId",
 					String.format("%s", apiUserId),
-					"Valid API User ID"
-			));
+					"Valid API User ID"));
+		}
+
+		ApiUserDto apiUserDto = apiUserParser.toDto(apiUser.get());
+		return HttpResponse.ok(apiUserDto);
+	}
+
+	@Get("/self")
+	@Secured({"API_USER_GET_SELF"})
+	@Operation(operationId = "getApiUserSelf")
+	@ApiResponse(responseCode = "200", description = "Successful operation")
+	@ApiResponse(responseCode = "400",
+			description = "Unsuccessful operation",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
+	@ApiResponse(responseCode = "404",
+			description = "User not found",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
+	public HttpResponse<ApiUserDto> getSelf(Authentication authentication) {
+		Long apiUserId = authenticationUtils.getApiUserId(authentication);
+		log.info("getSelf: { apiUserId: {} }", apiUserId);
+		Optional<ApiUser> apiUser = apiUserService.getById(apiUserId);
+
+		if (apiUser.isEmpty()) {
+			throw new NotFoundException("API user not found", new ApiException.Source(
+					ApiException.Location.PATH,
+					"apiUserId",
+					String.format("%s", apiUserId),
+					"Valid API User ID"));
 		}
 
 		ApiUserDto apiUserDto = apiUserParser.toDto(apiUser.get());
@@ -81,6 +107,7 @@ public class ApiUserController {
 	}
 
 	@Put("/{apiUserId}")
+	@Secured({"API_USER_UPDATE"})
 	@Operation(operationId = "updateApiUser")
 	@ApiResponse(responseCode = "200", description = "Successful operation")
 	@ApiResponse(responseCode = "400",
@@ -88,17 +115,33 @@ public class ApiUserController {
 			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
 	public HttpResponse<ApiUserDto> update(
 			@Body @Valid ApiUserDto apiUserDto,
-			Long apiUserId,
-			Authentication authentication
+			Long apiUserId
 	) {
 		log.info("update: { apiUserDto: {}, apiUserId: {} }", apiUserDto, apiUserId);
 		ApiUser apiUser = apiUserParser.toModel(apiUserDto);
 		apiUserService.update(
 				apiUserId,
-				apiUser,
-				authenticationUtils.getApiUserId(authentication),
-				authenticationUtils.getRoles(authentication)
-		);
+				apiUser);
+		return HttpResponse.ok(apiUserDto);
+	}
+
+	@Put("/self")
+	@Secured({"API_USER_UPDATE_SELF"})
+	@Operation(operationId = "updateApiUserSelf")
+	@ApiResponse(responseCode = "200", description = "Successful operation")
+	@ApiResponse(responseCode = "400",
+			description = "Unsuccessful  operation",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
+	public HttpResponse<ApiUserDto> updateSelf(
+			@Body @Valid ApiUserDto apiUserDto,
+			Authentication authentication
+	) {
+		Long apiUserId = authenticationUtils.getApiUserId(authentication);
+		log.info("updateSelf: { apiUserDto: {}, apiUserId: {} }", apiUserDto, apiUserId);
+		ApiUser apiUser = apiUserParser.toModel(apiUserDto);
+		apiUserService.update(
+				apiUserId,
+				apiUser);
 		return HttpResponse.ok(apiUserDto);
 	}
 
@@ -142,7 +185,7 @@ public class ApiUserController {
 	}
 
 	@Get("/list{?pageRequest*}")
-	@Secured({})
+	@Secured({"API_USER_LIST"})
 	@Operation(operationId = "listApiUsers")
 	@ApiResponse(responseCode = "200", description = "Successful operation")
 	@ApiResponse(responseCode = "400",
@@ -158,6 +201,7 @@ public class ApiUserController {
 	}
 
 	@Get("/search{?pageRequest*}{?apiUserSearchRequest*}")
+	@Secured({"API_USER_SEARCH"})
 	@Operation(operationId = "searchApiUsers")
 	@ApiResponse(responseCode = "200", description = "Successful operation")
 	@ApiResponse(responseCode = "400",
@@ -165,8 +209,7 @@ public class ApiUserController {
 			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
 	public HttpResponse<PageDto<ApiUserDto>> search(
 			PageRequest pageRequest,
-			ApiUserSearchRequest apiUserSearchRequest,
-			Authentication authentication
+			ApiUserSearchRequest apiUserSearchRequest
 	) {
 		log.info("search: { pageRequest: {}, apiUserSearchRequest: {} }", pageRequest, apiUserSearchRequest);
 		if(pageRequest == null)
@@ -174,9 +217,7 @@ public class ApiUserController {
 
 		Page<ApiUser> contacts = apiUserService.search(
 				pageRequest,
-				apiUserSearchRequest,
-				authenticationUtils.getRoles(authentication)
-		);
+				apiUserSearchRequest);
 		return HttpResponse.ok(apiUserParser.toPagedDto(contacts));
 	}
 }

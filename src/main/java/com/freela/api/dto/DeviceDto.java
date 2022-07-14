@@ -11,7 +11,7 @@ public class DeviceDto implements DtoInterface {
 	private Long id;
 	@NotBlank
 	private String deviceId;
-	private String deviceName;
+	private String name;
 
 	public Long getId() {
 		return id;
@@ -29,12 +29,12 @@ public class DeviceDto implements DtoInterface {
 		this.deviceId = deviceId;
 	}
 
-	public String getDeviceName() {
-		return deviceName;
+	public String getName() {
+		return name;
 	}
 
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class DeviceDto implements DtoInterface {
 		return "DeviceDto{" +
 				"id=" + id +
 				", deviceId='" + deviceId + '\'' +
-				", deviceName='" + deviceName + '\'' +
+				", name='" + name + '\'' +
 				'}';
 	}
 }

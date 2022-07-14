@@ -1,6 +1,5 @@
 package com.freela.database.repository;
 
-import com.freela.database.enums.Role;
 import com.freela.database.model.ApiUser;
 import io.micronaut.context.annotation.Executable;
 import io.micronaut.core.annotation.NonNull;
@@ -15,7 +14,6 @@ import io.micronaut.data.repository.PageableRepository;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -28,22 +26,20 @@ public interface ApiUserRepository extends PageableRepository<ApiUser, Long> {
 	Optional<ApiUser> findByRecoveryCodeAndDeletedFalse(String recoveryCode);
 
 	@Executable
-	@Query(value = "SELECT user_ FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.roles in (:roles) and user_.validated is true and user_.deleted is false",
-			countQuery = "SELECT count(user_) FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.roles in (:roles) and user_.validated is true and user_.deleted is false")
+	@Query(value = "SELECT user_ FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.validated is true and user_.deleted is false",
+			countQuery = "SELECT count(user_) FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.validated is true and user_.deleted is false")
 	Page<ApiUser> findByEmailOrNameAndValidated (
 			@Nullable String name,
 			@Nullable String email,
-			@NonNull List<Role> roles,
 			Pageable pageable
 	);
 
 	@Executable
-	@Query(value = "SELECT user_ FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.roles in (:roles) and user_.deleted is false",
-			countQuery = "SELECT count(user_) FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.roles in (:roles) and user_.deleted is false")
+	@Query(value = "SELECT user_ FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.deleted is false",
+			countQuery = "SELECT count(user_) FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.deleted is false")
 	Page<ApiUser> findByEmailOrName (
 			@Nullable String name,
 			@Nullable String email,
-			@NonNull  List<Role> roles,
 			Pageable pageable
 	);
 
@@ -65,7 +61,6 @@ public interface ApiUserRepository extends PageableRepository<ApiUser, Long> {
 	void update(
 			@Id Long id,
 			@NotBlank String name,
-			@NotBlank String email,
 			@NotBlank String phoneNumber,
 			@Nullable LocalDate birthDate
 	);

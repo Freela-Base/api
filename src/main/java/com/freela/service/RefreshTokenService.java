@@ -1,12 +1,12 @@
 package com.freela.service;
 
 import com.freela.api.rest.authentication.enums.AuthAttributes;
-import com.freela.database.enums.Role;
 import com.freela.database.model.ApiUser;
 import com.freela.database.model.Device;
 import com.freela.database.model.RefreshToken;
 import com.freela.database.repository.RefreshTokenRepository;
 import com.freela.service.validator.RefreshTokenValidator;
+import com.freela.utils.RoleUtils;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.security.authentication.AuthenticationFailureReason;
 import io.micronaut.security.authentication.AuthenticationResponse;
@@ -17,8 +17,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
 import java.time.OffsetDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Singleton
 @Transactional
@@ -33,6 +35,9 @@ public class RefreshTokenService {
 
 	@Inject
 	RefreshTokenRepository refreshTokenRepository;
+
+	@Inject
+	RoleUtils roleUtils;
 
 	public Optional<RefreshToken> findByValue(String value) {
 		log.info("findByValue: { value: {} }", value);
@@ -60,10 +65,7 @@ public class RefreshTokenService {
 
 		ApiUser apiUser = refreshToken.get().getApiUser();
 		Device device = refreshToken.get().getDevice();
-		Collection<String> roles = Objects.requireNonNull(apiUser)
-				.getRoles().stream()
-				.map(Role::name)
-				.collect(Collectors.toList());
+		Set<String> roles = roleUtils.getApiActions(apiUser.getRoles());
 
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(AuthAttributes.API_USER_ID.toString(), apiUser.getId());

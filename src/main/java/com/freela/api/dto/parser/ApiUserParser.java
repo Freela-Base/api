@@ -1,20 +1,21 @@
 package com.freela.api.dto.parser;
 
 import com.freela.api.dto.ApiUserDto;
-import com.freela.database.enums.Role;
 import com.freela.database.model.ApiUser;
 import com.freela.exception.ApiException;
 import com.freela.utils.DateTimeUtils;
+import com.freela.utils.RoleUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-
-import java.util.stream.Collectors;
 
 @Singleton
 public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto> {
 
 	@Inject
 	DateTimeUtils dateTimeUtils;
+
+	@Inject
+	RoleUtils roleUtils;
 
 	@Override
 	public ApiUserDto dtoParser(ApiUser apiUser) {
@@ -25,12 +26,7 @@ public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto> {
 			apiUserDto.setEmail(apiUser.getEmail());
 			apiUserDto.setPhoneNumber(apiUser.getPhoneNumber());
 			apiUserDto.setBirthDate(dateTimeUtils.convertToDate(apiUser.getBirthDate()));
-
-			if(apiUser.getRoles() != null) {
-				apiUserDto.setRoles(apiUser.getRoles().stream()
-						.map(Role::name)
-						.collect(Collectors.toList()));
-			}
+			apiUserDto.setRoles(roleUtils.getApiActions(apiUser.getRoles()));
 		}
 
 		return apiUserDto;

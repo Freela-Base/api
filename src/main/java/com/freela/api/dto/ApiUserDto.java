@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import java.util.List;
+import java.util.Set;
 
 @Introspected
 @Schema(name="ApiUser", description="Information about api user")
@@ -23,7 +23,7 @@ public class ApiUserDto implements DtoInterface {
 	private String description;
 	private String birthDate;
 	private Boolean validated;
-	private List<String> roles;
+	private Set<String> roles;
 	private Boolean deleted;
 
 	public Long getId() {
@@ -90,11 +90,11 @@ public class ApiUserDto implements DtoInterface {
 		this.deleted = deleted;
 	}
 
-	public List<String> getRoles() {
+	public Set<String> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(List<String> roles) {
+	public void setRoles(Set<String> roles) {
 		this.roles = roles;
 	}
 

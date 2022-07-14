@@ -1,10 +1,11 @@
 package com.freela.service;
 
 import com.freela.api.rest.authentication.enums.AuthAttributes;
-import com.freela.database.enums.Role;
 import com.freela.database.model.ApiUser;
 import com.freela.database.model.Device;
+import com.freela.database.model.Role;
 import com.freela.database.repository.ApiUserRepository;
+import com.freela.database.repository.RoleRepository;
 import com.freela.exception.ApiException;
 import com.freela.service.parameter.ApiUserSearchRequest;
 import com.freela.service.parameter.PageRequest;
@@ -29,7 +30,6 @@ import javax.transaction.Transactional;
 import java.security.spec.InvalidKeySpecException;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Singleton
 @Transactional
@@ -42,14 +42,14 @@ public class ApiUserService {
 	@Value("${com.freela.service.api-user.recovery-code.valid-time:10800}")
 	private Integer RECOVERY_CODE_VALID_TIME;
 
-	@Value("${com.freela.service.api-user.password.salt-size:32}")
-	private Integer PASSWORD_SALT_SIZE;
-
-	@Value("${com.freela.service.api-user.password.pepper-size:32}")
-	private Integer PASSWORD_PEPPER_SIZE;
+	@Value("${com.freela.service.api-user.create.default-role:DEFAULT_USER}")
+	private String CREATE_API_USER_DEFAULT_ROLE;
 
 	@Inject
 	PasswordUtils passwordUtils;
+
+	@Inject
+	RoleUtils roleUtils;
 
 	@Inject
 	PageValidator pageValidator;
@@ -64,10 +64,10 @@ public class ApiUserService {
 	ApiUserRepository apiUserRepository;
 
 	@Inject
-	DeviceService deviceService;
+	RoleRepository roleRepository;
 
 	@Inject
-	RoleUtils roleUtils;
+	DeviceService deviceService;
 
 	public ApiUser create(
 			@NonNull ApiUser newApiUser,
@@ -83,9 +83,14 @@ public class ApiUserService {
 		//Set recovery information for user validation
 		newApiUser.setRecoveryCode(passwordUtils.getRandomString(RECOVERY_CODE_SIZE));
 		newApiUser.setRecoveryCodeValidUntil(OffsetDateTime.now().plusSeconds(RECOVERY_CODE_VALID_TIME));
-		newApiUser.setRoles(Set.of(Role.CUSTOMER));
 
-		setApiUserPassword(newApiUser, password);
+		Set<Role> userRoles = roleRepository.findByNameIn(List.of(CREATE_API_USER_DEFAULT_ROLE.split(",")));
+		newApiUser.setRoles(userRoles);
+		if (userRoles.isEmpty()) {
+			log.warn("Creating user without roles: { email: {} }", newApiUser.getEmail());
+		}
+
+		passwordUtils.setApiUserPassword(newApiUser, password);
 
 		if(savedApiUser == null) {
 			newApiUser = apiUserRepository.save(newApiUser);
@@ -107,24 +112,11 @@ public class ApiUserService {
 		return newApiUser;
 	}
 
-	private void setApiUserPassword(
-			@NonNull ApiUser apiUser,
-			@NonNull String password
-	) throws InvalidKeySpecException {
-		if (StringUtils.isNotEmpty(password)) {
-			apiUser.setPasswordSalt(passwordUtils.getRandomString(PASSWORD_SALT_SIZE));
-			apiUser.setPasswordPepper(passwordUtils.getRandomString(PASSWORD_PEPPER_SIZE));
-			apiUser.setPasswordHash(passwordUtils.hash(
-					password,
-					apiUser.getPasswordSalt(),
-					apiUser.getPasswordPepper()));
-		}
-	}
 
-	public Optional<ApiUser> getById(Long id, Long authenticationId, Set<Role> authenticationRoles) {
-		log.info("findById: { apiUserRequestId: {}, authenticationId: {}, authenticationRoles: {} }",
-				id, authenticationId, authenticationRoles);
-		apiUserValidator.validateUserIdAndRoles(id, authenticationId, authenticationRoles, ApiUserValidator.ADMIN_ROLE);
+
+	public Optional<ApiUser> getById(Long id) {
+		log.info("findById: { apiUserRequestId: {} }",
+				id);
 		return apiUserRepository.findById(id);
 	}
 
@@ -135,11 +127,8 @@ public class ApiUserService {
 		ApiUser apiUser = apiUserRepository.findByEmailAndValidatedTrueAndDeletedFalse(email).orElse(null);
 		apiUserValidator.checkPassword(apiUser, password);
 		device = deviceService.retrieveOrCreate(device);
-
-		Collection<String> roles = Objects.requireNonNull(apiUser)
-				.getRoles().stream()
-				.map(Role::name)
-				.collect(Collectors.toList());
+		//TODO check if it is possible to send roles instead api actions here
+		Set<String> roles = roleUtils.getApiActions(Objects.requireNonNull(apiUser).getRoles());
 
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(AuthAttributes.API_USER_ID.toString(), apiUser.getId());
@@ -149,18 +138,13 @@ public class ApiUserService {
 
 	public void update(
 			Long apiUserid,
-			ApiUser newApiUser,
-			Long authenticationId,
-			Collection<Role> authenticationRoles
+			ApiUser newApiUser
 	) {
-		log.info("update: { apiUserid: {}, newApiUser: {}, authenticationId: {}, authenticationRoles: {} }",
-				apiUserid, newApiUser, authenticationId, authenticationRoles);
-		apiUserValidator.validateUserIdAndRoles(
-				apiUserid, authenticationId, authenticationRoles, ApiUserValidator.ADMIN_ROLE);
+		log.info("update: { apiUserid: {}, newApiUser: {} }",
+				apiUserid, newApiUser);
 		apiUserRepository.update(
 				apiUserid,
 				newApiUser.getName(),
-				newApiUser.getEmail(),
 				newApiUser.getPhoneNumber(),
 				newApiUser.getBirthDate()
 		);
@@ -196,7 +180,7 @@ public class ApiUserService {
 				|| StringUtils.isNotEmpty(password) && apiUser.getPasswordHash() == null
 		) {
 			apiUserValidator.validatePassword(password);
-			setApiUserPassword(apiUser, password);
+			passwordUtils.setApiUserPassword(apiUser, password);
 		}
 
 		apiUserRepository.update(
@@ -240,35 +224,20 @@ public class ApiUserService {
 
 	public Page<ApiUser> search(
 			@NonNull PageRequest pageRequest,
-			@NonNull ApiUserSearchRequest apiUserSearchRequest,
-			@NonNull Collection<Role> authenticationRoles
+			@NonNull ApiUserSearchRequest apiUserSearchRequest
 	) {
-		log.info("search: { apiUserSearchRequest: {}, authenticationRoles: {}, pageRequest: {} }",
-				apiUserSearchRequest, authenticationRoles, pageRequest);
+		log.info("search: { apiUserSearchRequest: {}, pageRequest: {} }",
+				apiUserSearchRequest, pageRequest);
 
 		pageValidator.validate(pageRequest);
-		apiUserValidator.validateSearch(apiUserSearchRequest, authenticationRoles);
+		apiUserValidator.validateSearch(apiUserSearchRequest);
 
-		if(roleUtils.containsRoles(authenticationRoles, Collections.singletonList(Role.ADMIN))) {
-			return apiUserRepository.findByEmailOrName(
-					apiUserSearchRequest.getName(),
-					apiUserSearchRequest.getEmail(),
-					apiUserSearchRequest.getRoles(),
-					Pageable.from(
-							pageRequest.getPageNumber(),
-							pageRequest.getPageNumber(),
-							Sort.of(Sort.Order.asc("name")))
-			);
-		} else {
-			return apiUserRepository.findByEmailOrNameAndValidated(
-					apiUserSearchRequest.getName(),
-					apiUserSearchRequest.getEmail(),
-					apiUserSearchRequest.getRoles(),
-					Pageable.from(
-							pageRequest.getPageNumber(),
-							pageRequest.getPageNumber(),
-							Sort.of(Sort.Order.asc("name")))
-			);
-		}
+		return apiUserRepository.findByEmailOrNameAndValidated(
+				apiUserSearchRequest.getName(),
+				apiUserSearchRequest.getEmail(),
+				Pageable.from(
+						pageRequest.getPageNumber(),
+						pageRequest.getPageNumber(),
+						Sort.of(Sort.Order.asc("name"))));
 	}
 }

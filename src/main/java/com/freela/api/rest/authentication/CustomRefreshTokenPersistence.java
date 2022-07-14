@@ -1,7 +1,6 @@
 package com.freela.api.rest.authentication;
 
 import com.freela.api.utils.AuthenticationUtils;
-import com.freela.database.enums.Role;
 import com.freela.database.model.ApiUser;
 import com.freela.database.model.Device;
 import com.freela.database.model.RefreshToken;
@@ -23,7 +22,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
 import java.util.Optional;
-import java.util.Set;
 
 @Singleton
 public class CustomRefreshTokenPersistence implements RefreshTokenPersistence {
@@ -42,9 +40,9 @@ public class CustomRefreshTokenPersistence implements RefreshTokenPersistence {
 	AuthenticationUtils authenticationUtils;
 
 	private boolean isValidRefreshTokenEvent(RefreshTokenGeneratedEvent event) {
-		return event != null &&
-				event.getRefreshToken() != null &&
-				event.getAuthentication() != null;
+		return event != null
+				&& event.getRefreshToken() != null
+				&& event.getAuthentication() != null;
 	}
 
 	@Override
@@ -53,19 +51,15 @@ public class CustomRefreshTokenPersistence implements RefreshTokenPersistence {
 		if (isValidRefreshTokenEvent(event)) {
 			Long apiUserId = authenticationUtils.getApiUserId(event.getAuthentication());
 			String deviceId = authenticationUtils.getDeviceId(event.getAuthentication());
-			Set<Role> roles = authenticationUtils.getRoles(event.getAuthentication());
 
 			Optional<Device> device = deviceService.findByDeviceId(deviceId);
-			Optional<ApiUser> apiUser = apiUserService.getById(
-					apiUserId,
-					apiUserId,
-					roles);
+			Optional<ApiUser> apiUser = apiUserService.getById(apiUserId);
 
 			RefreshToken refreshToken = refreshTokenService.create(
 					event.getRefreshToken(),
 					device.orElse(null),
 					apiUser.orElse(null));
-			log.info("persistToken: { refreshToken: {} }", refreshToken);
+			log.info("persistToken: { refreshToken: {} }", refreshToken.getId());
 		}
 	}
 

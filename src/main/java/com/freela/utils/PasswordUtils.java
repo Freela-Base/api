@@ -1,6 +1,9 @@
 package com.freela.utils;
 
 import com.freela.database.model.ApiUser;
+import io.micronaut.context.annotation.Value;
+import io.micronaut.core.annotation.NonNull;
+import io.micronaut.core.util.StringUtils;
 import jakarta.inject.Singleton;
 
 import javax.crypto.SecretKeyFactory;
@@ -23,15 +26,21 @@ public class PasswordUtils {
 
 	private final SecretKeyFactory factory;
 
+	@Value("${com.freela.service.api-user.password.salt-size:32}")
+	private Integer PASSWORD_SALT_SIZE;
+
+	@Value("${com.freela.service.api-user.password.pepper-size:32}")
+	private Integer PASSWORD_PEPPER_SIZE;
+
 	public PasswordUtils() throws NoSuchAlgorithmException {
 		factory = SecretKeyFactory.getInstance(HASH_ALGORITHM);
 	}
 
 	public boolean isValidPassword(ApiUser apiUser, String password) throws InvalidKeySpecException {
-		return apiUser == null
-				|| password == null
-				|| apiUser.getPasswordHash() == null
-				|| !apiUser.getPasswordHash().equals(
+		return apiUser != null
+				&& password != null
+				&& apiUser.getPasswordHash() != null
+				&& apiUser.getPasswordHash().equals(
 						hash(password, apiUser.getPasswordSalt(), apiUser.getPasswordPepper()));
 	}
 
@@ -53,5 +62,19 @@ public class PasswordUtils {
 		byte[] salt = new byte[size];
 		SECURE_RANDOM.nextBytes(salt);
 		return B_64_ENCODER.encodeToString(salt);
+	}
+
+	public void setApiUserPassword(
+			@NonNull ApiUser apiUser,
+			@NonNull String password
+	) throws InvalidKeySpecException {
+		if (StringUtils.isNotEmpty(password)) {
+			apiUser.setPasswordSalt(getRandomString(PASSWORD_SALT_SIZE));
+			apiUser.setPasswordPepper(getRandomString(PASSWORD_PEPPER_SIZE));
+			apiUser.setPasswordHash(hash(
+					password,
+					apiUser.getPasswordSalt(),
+					apiUser.getPasswordPepper()));
+		}
 	}
 }

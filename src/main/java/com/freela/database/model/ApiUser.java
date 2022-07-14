@@ -1,11 +1,11 @@
 package com.freela.database.model;
 
-import com.freela.database.enums.Role;
 import io.micronaut.data.annotation.DateCreated;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -58,15 +58,11 @@ public class ApiUser implements ModelInterface {
 	@Column(nullable = true)
 	private OffsetDateTime recoveryCodeValidUntil;
 
-
-	//TODO every time hibernate creates this table
-	// it also creates a useless column "roles" in table api_user
-	@CollectionTable(
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(
 			name = "api_user_role",
-			joinColumns = @JoinColumn(name = "api_user_id"))
-	@ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
-	@Enumerated(EnumType.ORDINAL)
-	@Column(nullable = true)
+			joinColumns = { @JoinColumn(name = "api_user_id") },
+			inverseJoinColumns = { @JoinColumn(name = "role_id") })
 	private Set<Role> roles;
 
 	public Long getId() {

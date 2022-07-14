@@ -1,21 +1,20 @@
 package com.freela.service.parameter;
 
-import com.freela.database.enums.Role;
 import io.micronaut.core.annotation.Introspected;
 
 import java.util.List;
 
 @Introspected
 public class ApiUserSearchRequest {
-	List<Role> roles;
+	List<String> roles;
 	String name;
 	String email;
 
-	public List<Role> getRoles() {
+	public List<String> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(List<Role> roles) {
+	public void setRoles(List<String> roles) {
 		this.roles = roles;
 	}
 

@@ -15,8 +15,8 @@ public class Device implements ModelInterface {
 	@Column(length = 500, nullable = false, unique = true)
 	private String deviceId;
 
-	@Column(length = 100, nullable = true)
-	private String deviceName;
+	@Column(length = 500, nullable = true)
+	private String name;
 
 	@DateCreated
 	@Column(nullable = false, columnDefinition = "timestamp with time zone")
@@ -38,12 +38,12 @@ public class Device implements ModelInterface {
 		this.deviceId = deviceId;
 	}
 
-	public String getDeviceName() {
-		return deviceName;
+	public String getName() {
+		return name;
 	}
 
-	public void setDeviceName(String deviceName) {
-		this.deviceName = deviceName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public OffsetDateTime getCreation() {
@@ -59,7 +59,7 @@ public class Device implements ModelInterface {
 		return "Device{" +
 				"id=" + id +
 				", deviceId='" + deviceId + '\'' +
-				", deviceName='" + deviceName + '\'' +
+				", name='" + name + '\'' +
 				", creation=" + creation +
 				'}';
 	}

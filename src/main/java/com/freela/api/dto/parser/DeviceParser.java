@@ -11,7 +11,7 @@ public class DeviceParser  implements ParserInterface<Device, DeviceDto> {
 		DeviceDto deviceDto = new DeviceDto();
 		deviceDto.setId(deviceDto.getId());
 		deviceDto.setDeviceId(deviceDto.getDeviceId());
-		deviceDto.setDeviceName(deviceDto.getDeviceName());
+		deviceDto.setName(deviceDto.getName());
 		return deviceDto;
 	}
 
@@ -20,7 +20,7 @@ public class DeviceParser  implements ParserInterface<Device, DeviceDto> {
 		Device device = new Device();
 		device.setId(deviceDto.getId());
 		device.setDeviceId(deviceDto.getDeviceId());
-		device.setDeviceName(deviceDto.getDeviceName());
+		device.setName(deviceDto.getName());
 		return device;
 	}
 }
