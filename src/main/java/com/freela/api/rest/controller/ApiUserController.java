@@ -30,14 +30,15 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Optional;
 
+@Transactional
 @Version("1")
-@ExecuteOn(TaskExecutors.IO)
 @Controller("/api-users")
-@Secured(SecurityRule.IS_AUTHENTICATED)
+@ExecuteOn(TaskExecutors.IO)
 public class ApiUserController {
 
 	private static final Logger log = LoggerFactory.getLogger(ApiUserController.class);

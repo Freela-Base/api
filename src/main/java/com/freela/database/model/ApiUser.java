@@ -58,7 +58,7 @@ public class ApiUser implements ModelInterface {
 	@Column(nullable = true)
 	private OffsetDateTime recoveryCodeValidUntil;
 
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany
 	@JoinTable(
 			name = "api_user_role",
 			joinColumns = { @JoinColumn(name = "api_user_id") },

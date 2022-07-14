@@ -7,6 +7,9 @@ import com.freela.utils.DateTimeUtils;
 import com.freela.utils.RoleUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.hibernate.Hibernate;
+
+import javax.transaction.Transactional;
 
 @Singleton
 public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto> {
@@ -21,13 +24,11 @@ public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto> {
 	public ApiUserDto dtoParser(ApiUser apiUser) {
 		ApiUserDto apiUserDto = new ApiUserDto();
 		apiUserDto.setId(apiUser.getId());
-		if(org.hibernate.Hibernate.isInitialized(apiUser)) {
-			apiUserDto.setName(apiUser.getName());
-			apiUserDto.setEmail(apiUser.getEmail());
-			apiUserDto.setPhoneNumber(apiUser.getPhoneNumber());
-			apiUserDto.setBirthDate(dateTimeUtils.convertToDate(apiUser.getBirthDate()));
-			apiUserDto.setRoles(roleUtils.getApiActions(apiUser.getRoles()));
-		}
+		apiUserDto.setName(apiUser.getName());
+		apiUserDto.setEmail(apiUser.getEmail());
+		apiUserDto.setPhoneNumber(apiUser.getPhoneNumber());
+		apiUserDto.setBirthDate(dateTimeUtils.convertToDate(apiUser.getBirthDate()));
+		apiUserDto.setRoles(roleUtils.getApiActions(apiUser.getRoles()));
 
 		return apiUserDto;
 	}
