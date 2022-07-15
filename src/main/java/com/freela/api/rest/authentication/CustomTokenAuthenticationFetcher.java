@@ -5,6 +5,7 @@ import com.freela.database.model.Role;
 import com.freela.service.RoleService;
 import io.micronaut.context.annotation.Replaces;
 import io.micronaut.context.event.ApplicationEventPublisher;
+import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.authentication.AuthenticationResponse;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Singleton
 @Replaces(TokenAuthenticationFetcher.class)
@@ -45,20 +45,27 @@ public class CustomTokenAuthenticationFetcher extends TokenAuthenticationFetcher
 	public Publisher<Authentication> fetchAuthentication(HttpRequest<?> request) {
 		log.info("Replacing Roles for API Actions");
 		return Flux.from(super.fetchAuthentication(request)).map(authentication -> {
-			List<String> roleNames = new ArrayList<>(authentication.getRoles());
-			Set<Role> roles = roleService.findByNameIn(roleNames);
-			Set<String> apiActionNames = roles.stream()
-					.map(Role::getApiActions)
-					.flatMap(Set::stream)
-					.map(ApiAction::name)
-					.collect(Collectors.toSet());
-			apiActionNames.addAll(authentication.getRoles());
-
+			Set<String> apiActionNames = getApiActions(authentication);
 			Optional<Authentication> newAuthentication = AuthenticationResponse
 					.success(authentication.getName(), apiActionNames, authentication.getAttributes())
 					.getAuthentication();
 
 			return newAuthentication.orElse(authentication);
 		});
+	}
+
+	private Set<String> getApiActions(Authentication authentication) {
+		List<String> roleNames = new ArrayList<>(authentication.getRoles());
+		Set<Role> roles = roleService.findByNameIn(roleNames);
+		Set<String> apiActionNames = new HashSet<>();
+		if (CollectionUtils.isNotEmpty(roles)) {
+			roles.stream()
+					.map(Role::getApiActions)
+					.flatMap(Set::stream)
+					.map(ApiAction::name)
+					.forEach(apiActionNames::add);
+		}
+		apiActionNames.addAll(authentication.getRoles());
+		return apiActionNames;
 	}
 }
