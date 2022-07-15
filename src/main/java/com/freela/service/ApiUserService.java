@@ -127,8 +127,7 @@ public class ApiUserService {
 		ApiUser apiUser = apiUserRepository.findByEmailAndValidatedTrueAndDeletedFalse(email).orElse(null);
 		apiUserValidator.checkPassword(apiUser, password);
 		device = deviceService.retrieveOrCreate(device);
-		//TODO check if it is possible to send roles instead api actions here
-		Set<String> roles = roleUtils.getApiActions(Objects.requireNonNull(apiUser).getRoles());
+		Set<String> roles = roleUtils.getRoles(Objects.requireNonNull(apiUser).getRoles());
 
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(AuthAttributes.API_USER_ID.toString(), apiUser.getId());

@@ -34,6 +34,11 @@ micronaut:
             generator:
               secret: '"${JWT_TOKEN_SECRET:cGxlYXNlQ2hhbmdlVGhpc1NlY3JldEZvckFOZXdPbmU}"'
               jws-algorithm: HS256
+    intercept-url-map:
+      - pattern: /swagger/**
+        httpMethod: GET
+        access:
+          - isAnonymous()
 pem:
   path: /Users/fernandomolina/fun/freela/base/api/rsa-freela-base.pem
 datasources:
@@ -65,8 +70,5 @@ com:
         recovery-code:
           size: 128
           valid-time: 10800
-        password:
-          salt-size: 32
-          pepper-size: 32
       refresh-token:
         expiration-time: 86400

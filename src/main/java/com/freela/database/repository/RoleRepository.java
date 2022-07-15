@@ -17,5 +17,5 @@ public interface RoleRepository extends PageableRepository<Role, Long> {
 	Boolean existsByName(@NonNull String value);
 
 	@Executable
-	Set<Role> findByNameIn(@NonNull List<String> value);
+	Set<Role> findByNameIn(@NonNull List<String> values);
 }

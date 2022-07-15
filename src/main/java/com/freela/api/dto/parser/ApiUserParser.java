@@ -28,7 +28,8 @@ public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto> {
 		apiUserDto.setEmail(apiUser.getEmail());
 		apiUserDto.setPhoneNumber(apiUser.getPhoneNumber());
 		apiUserDto.setBirthDate(dateTimeUtils.convertToDate(apiUser.getBirthDate()));
-		apiUserDto.setRoles(roleUtils.getApiActions(apiUser.getRoles()));
+		apiUserDto.setRoles(roleUtils.getRoles(apiUser.getRoles()));
+		apiUserDto.setApiActions(roleUtils.getApiActions(apiUser.getRoles()));
 
 		return apiUserDto;
 	}

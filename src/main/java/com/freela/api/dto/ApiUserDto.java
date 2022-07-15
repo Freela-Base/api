@@ -24,6 +24,7 @@ public class ApiUserDto implements DtoInterface {
 	private String birthDate;
 	private Boolean validated;
 	private Set<String> roles;
+	private Set<String> apiActions;
 	private Boolean deleted;
 
 	public Long getId() {
@@ -106,6 +107,14 @@ public class ApiUserDto implements DtoInterface {
 		this.password = password;
 	}
 
+	public Set<String> getApiActions() {
+		return apiActions;
+	}
+
+	public void setApiActions(Set<String> apiActions) {
+		this.apiActions = apiActions;
+	}
+
 	@Override
 	public String toString() {
 		return "ApiUserDto{" +
@@ -118,6 +127,7 @@ public class ApiUserDto implements DtoInterface {
 				", birthDate='" + birthDate + '\'' +
 				", validated=" + validated +
 				", role=" + roles +
+				", apiActions=" + apiActions +
 				", deleted=" + deleted +
 				'}';
 	}

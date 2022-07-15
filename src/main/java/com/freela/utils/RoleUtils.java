@@ -33,4 +33,14 @@ public class RoleUtils {
 		return apiActions;
 	}
 
+	public Set<String> getRoles(Collection<Role> roles) {
+		Set<String> strRoles = new HashSet<>();
+		if (CollectionUtils.isNotEmpty(roles)) {
+			roles.stream()
+					.map(Role::getName)
+					.forEach(strRoles::add);
+		}
+		return strRoles;
+	}
+
 }
