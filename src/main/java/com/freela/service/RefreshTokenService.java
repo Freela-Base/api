@@ -65,7 +65,7 @@ public class RefreshTokenService {
 
 		ApiUser apiUser = refreshToken.get().getApiUser();
 		Device device = refreshToken.get().getDevice();
-		Set<String> roles = roleUtils.getApiActions(apiUser.getRoles());
+		Set<String> roles = roleUtils.getStrApiActions(apiUser.getRoles());
 
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(AuthAttributes.API_USER_ID.toString(), apiUser.getId());

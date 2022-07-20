@@ -65,7 +65,6 @@ public class CustomTokenAuthenticationFetcher extends TokenAuthenticationFetcher
 					.map(ApiAction::name)
 					.forEach(apiActionNames::add);
 		}
-		apiActionNames.addAll(authentication.getRoles());
 		return apiActionNames;
 	}
 }

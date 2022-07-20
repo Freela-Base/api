@@ -21,7 +21,7 @@ public class RoleUtils {
 		return false;
 	}
 
-	public Set<String> getApiActions(Collection<Role> roles) {
+	public Set<String> getStrApiActions(Collection<Role> roles) {
 		Set<String> apiActions = new HashSet<>();
 		if (CollectionUtils.isNotEmpty(roles)) {
 			roles.stream()
@@ -41,6 +41,16 @@ public class RoleUtils {
 					.forEach(strRoles::add);
 		}
 		return strRoles;
+	}
+
+	public Set<ApiAction> getApiActions(Collection<String> strApiActions) {
+		Set<ApiAction> apiActions = new HashSet<>();
+		if (CollectionUtils.isEmpty(strApiActions)) {
+			return apiActions;
+		}
+
+		strApiActions.forEach(r -> apiActions.add(ApiAction.valueOf(r)));
+		return apiActions;
 	}
 
 }

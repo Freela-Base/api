@@ -20,7 +20,6 @@ import io.micronaut.scheduling.TaskExecutors;
 import io.micronaut.scheduling.annotation.ExecuteOn;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.rules.SecurityRule;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -193,8 +192,9 @@ public class ApiUserController {
 			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
 	public HttpResponse<PageDto<ApiUserDto>> list(PageRequest pageRequest) {
 		log.info("list: { pageRequest: {} }", pageRequest);
-		if(pageRequest == null)
+		if(pageRequest == null) {
 			pageRequest = new PageRequest();
+		}
 
 		Page<ApiUser> contacts = apiUserService.findAll(pageRequest);
 		return HttpResponse.ok(apiUserParser.toPagedDto(contacts));

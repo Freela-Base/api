@@ -7,9 +7,6 @@ import com.freela.utils.DateTimeUtils;
 import com.freela.utils.RoleUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import org.hibernate.Hibernate;
-
-import javax.transaction.Transactional;
 
 @Singleton
 public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto> {
@@ -29,7 +26,7 @@ public class ApiUserParser implements ParserInterface<ApiUser, ApiUserDto> {
 		apiUserDto.setPhoneNumber(apiUser.getPhoneNumber());
 		apiUserDto.setBirthDate(dateTimeUtils.convertToDate(apiUser.getBirthDate()));
 		apiUserDto.setRoles(roleUtils.getRoles(apiUser.getRoles()));
-		apiUserDto.setApiActions(roleUtils.getApiActions(apiUser.getRoles()));
+		apiUserDto.setApiActions(roleUtils.getStrApiActions(apiUser.getRoles()));
 
 		return apiUserDto;
 	}

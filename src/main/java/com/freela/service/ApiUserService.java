@@ -76,6 +76,9 @@ public class ApiUserService {
 		log.info("save: { newApiUser: {}, isPasswordPresent: {} }",
 				newApiUser, StringUtils.isNotEmpty(password) ? "true" : "false");
 
+		// Make sure ID is null
+		newApiUser.setId(null);
+
 		// Check if there is an entry for that user
 		ApiUser savedApiUser = apiUserRepository.findByEmail(newApiUser.getEmail()).orElse(null);
 		apiUserValidator.validateUserToSave(newApiUser, savedApiUser, password);
@@ -111,8 +114,6 @@ public class ApiUserService {
 		// TODO send phone number / email confirmation
 		return newApiUser;
 	}
-
-
 
 	public Optional<ApiUser> getById(Long id) {
 		log.info("findById: { apiUserRequestId: {} }",
@@ -239,4 +240,13 @@ public class ApiUserService {
 						pageRequest.getPageNumber(),
 						Sort.of(Sort.Order.asc("name"))));
 	}
+
+	@NonNull
+	public Boolean areRolesBeingUsed(Collection<Long> roleIds) {
+		//TODO validate roles
+		return Boolean.TRUE.equals(apiUserRepository.existsByRoleIdIn(roleIds));
+	}
+
+	//TODO Create service for updating user's roles
+	//     Api Actions of new roles need to be subset of logged in user's api actions
 }

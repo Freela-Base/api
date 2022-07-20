@@ -5,7 +5,6 @@ import io.micronaut.data.annotation.DateCreated;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Set;
 
 @Entity

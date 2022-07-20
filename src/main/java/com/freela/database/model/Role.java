@@ -11,7 +11,7 @@ import java.util.Set;
 @Table(indexes = {
 		@Index(name = "role_name_index", columnList = "name"),
 })
-public class Role {
+public class Role implements ModelInterface {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_seq")
 	@SequenceGenerator(name = "role_seq", allocationSize = 1)

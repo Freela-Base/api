@@ -2,8 +2,9 @@ package com.freela.api.utils;
 
 import com.freela.api.rest.authentication.enums.AuthAttributes;
 import com.freela.database.enums.ApiAction;
-import io.micronaut.core.util.CollectionUtils;
+import com.freela.utils.RoleUtils;
 import io.micronaut.security.authentication.Authentication;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.util.HashSet;
@@ -11,6 +12,9 @@ import java.util.Set;
 
 @Singleton
 public class AuthenticationUtils {
+	@Inject
+	RoleUtils roleUtils;
+
 	public Long getApiUserId(Authentication authentication) {
 		return (Long) authentication.getAttributes().get(AuthAttributes.API_USER_ID.toString());
 	}
@@ -20,14 +24,10 @@ public class AuthenticationUtils {
 	}
 
 	public Set<ApiAction> getApiActions(Authentication authentication) {
-		Set<ApiAction> apiActions = new HashSet<>();
-		if (authentication == null
-				|| CollectionUtils.isEmpty(authentication.getRoles())
-		) {
-			return apiActions;
+		if(authentication ==  null) {
+			return new HashSet<>();
 		}
 
-		authentication.getRoles().forEach(r -> apiActions.add(ApiAction.valueOf(r)));
-		return apiActions;
+		return roleUtils.getApiActions(authentication.getRoles());
 	}
 }

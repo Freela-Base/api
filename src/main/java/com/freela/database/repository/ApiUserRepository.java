@@ -14,6 +14,7 @@ import io.micronaut.data.repository.PageableRepository;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.Optional;
 
 @Repository
@@ -22,6 +23,11 @@ public interface ApiUserRepository extends PageableRepository<ApiUser, Long> {
 	Optional<ApiUser> findByEmailAndValidatedTrueAndDeletedFalse(String email);
 	@Executable
 	Optional<ApiUser> findByEmail(String email);
+
+	@Executable
+	@Query(value = "SELECT count(user_.id) > 0 FROM ApiUser user_ inner join user_.roles role WHERE role.id in (:roleIds) and user_.deleted is false")
+	Boolean existsByRoleIdIn(@NonNull Collection<Long> roleIds);
+
 	@Executable
 	Optional<ApiUser> findByRecoveryCodeAndDeletedFalse(String recoveryCode);
 
@@ -29,15 +35,6 @@ public interface ApiUserRepository extends PageableRepository<ApiUser, Long> {
 	@Query(value = "SELECT user_ FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.validated is true and user_.deleted is false",
 			countQuery = "SELECT count(user_) FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.validated is true and user_.deleted is false")
 	Page<ApiUser> findByEmailOrNameAndValidated (
-			@Nullable String name,
-			@Nullable String email,
-			Pageable pageable
-	);
-
-	@Executable
-	@Query(value = "SELECT user_ FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.deleted is false",
-			countQuery = "SELECT count(user_) FROM ApiUser user_ WHERE (lower(user_.name) like lower(concat('%', :name, '%')) or lower(user_.email) = lower(:email)) and user_.deleted is false")
-	Page<ApiUser> findByEmailOrName (
 			@Nullable String name,
 			@Nullable String email,
 			Pageable pageable
