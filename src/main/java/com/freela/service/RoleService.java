@@ -71,7 +71,6 @@ public class RoleService {
 			@NonNull Long roleId,
 			Set<ApiAction> permittedApiActions
 	) {
-		//TODO TEST ALL ROLE endpoints
 		log.info("delete: { roleId: {}, permittedApiActions: {} }", roleId, permittedApiActions);
 		Role role = roleRepository.findById(roleId).orElse(null);
 		roleValidator.validateExists(roleId, role);

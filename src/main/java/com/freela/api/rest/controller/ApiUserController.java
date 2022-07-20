@@ -51,7 +51,6 @@ public class ApiUserController {
 	@Inject
 	AuthenticationUtils authenticationUtils;
 
-	//TODO create controller for roles
 	@Get("/{apiUserId}")
 	@Secured({"API_USER_GET"})
 	@Operation(operationId = "getApiUser")

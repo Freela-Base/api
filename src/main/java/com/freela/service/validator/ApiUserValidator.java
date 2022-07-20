@@ -9,11 +9,14 @@ import com.freela.service.parameter.ApiUserSearchRequest;
 import com.freela.utils.PasswordUtils;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.core.util.StringUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
 
 @Singleton
 public class ApiUserValidator {
@@ -58,6 +61,16 @@ public class ApiUserValidator {
 		}
 
 		throw new InvalidParameterException("User already registered", source);
+	}
+
+	public void validateRoleIds(Collection<Long> roleIds) {
+		if (CollectionUtils.isEmpty(roleIds)) {
+			throw new InvalidParameterException("Role IDs cannot be empty or null", new ApiException.Source(
+					ApiException.Location.BODY,
+					"roleIds",
+					"%s".formatted(roleIds),
+					"Valid list of Role IDs"));
+		}
 	}
 
 	public void validateSearch(ApiUserSearchRequest contactSearchRequest) {

@@ -243,7 +243,7 @@ public class ApiUserService {
 
 	@NonNull
 	public Boolean areRolesBeingUsed(Collection<Long> roleIds) {
-		//TODO validate roles
+		apiUserValidator.validateRoleIds(roleIds);
 		return Boolean.TRUE.equals(apiUserRepository.existsByRoleIdIn(roleIds));
 	}
 
