@@ -31,8 +31,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Optional;
+import java.util.Set;
 
 @Transactional
 @Version("1")
@@ -218,5 +220,23 @@ public class ApiUserController {
 				pageRequest,
 				apiUserSearchRequest);
 		return HttpResponse.ok(apiUserParser.toPagedDto(contacts));
+	}
+
+	@Put("/{apiUserId}/roles")
+	@Secured({"API_USER_UPDATE_ROLES"})
+	@Operation(operationId = "updateApiUserRoles")
+	@ApiResponse(responseCode = "200", description = "Successful operation")
+	@ApiResponse(responseCode = "400",
+			description = "Unsuccessful  operation",
+			content = @Content(schema = @Schema(implementation = ErrorDto.class)))
+	public HttpResponse<Void> updateRoles(
+			@Body @NotNull Set<Long> roleIds,
+			Long apiUserId,
+			Authentication authentication
+	) {
+		log.info("updateRoles: { apiUserId: {}, roleIds: {} }", apiUserId, roleIds);
+		apiUserService.updateRoles(
+				apiUserId, roleIds, authenticationUtils.getApiActions(authentication));
+		return HttpResponse.ok();
 	}
 }

@@ -28,6 +28,6 @@ public class AuthenticationUtils {
 			return new HashSet<>();
 		}
 
-		return roleUtils.getApiActions(authentication.getRoles());
+		return roleUtils.getApiActionsFromStr(authentication.getRoles());
 	}
 }

@@ -3,12 +3,14 @@ package com.freela.service.validator;
 import com.freela.database.enums.ApiAction;
 import com.freela.database.model.Role;
 import com.freela.exception.ApiException;
+import com.freela.exception.ForbiddenException;
 import com.freela.exception.InvalidParameterException;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.util.CollectionUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import java.util.Collection;
 import java.util.Set;
 
 @Singleton
@@ -84,6 +86,20 @@ public class RoleValidator {
 					"apiActions",
 					"%s".formatted(apiActions),
 					"Valid subset of user's API Actions"));
+		}
+	}
+
+	public void validatePreviousApiActions(
+			@NonNull Collection<Long> roleIds,
+			@NonNull Set<ApiAction> apiActions,
+			@NonNull Set<ApiAction> permittedApiActions
+	) {
+		if (!permittedApiActions.containsAll(apiActions)) {
+			throw new ForbiddenException("Cannot update roles for users with more privileges", new ApiException.Source(
+					ApiException.Location.BODY,
+					"roleIds",
+					"%s".formatted(roleIds),
+					"Valid roles"));
 		}
 	}
 

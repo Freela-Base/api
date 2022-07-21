@@ -1,6 +1,7 @@
 package com.freela.service;
 
 import com.freela.api.rest.authentication.enums.AuthAttributes;
+import com.freela.database.enums.ApiAction;
 import com.freela.database.model.ApiUser;
 import com.freela.database.model.Device;
 import com.freela.database.model.Role;
@@ -12,6 +13,7 @@ import com.freela.service.parameter.PageRequest;
 import com.freela.service.validator.ApiUserValidator;
 import com.freela.service.validator.FieldValidator;
 import com.freela.service.validator.PageValidator;
+import com.freela.service.validator.RoleValidator;
 import com.freela.utils.PasswordUtils;
 import com.freela.utils.RoleUtils;
 import io.micronaut.context.annotation.Value;
@@ -68,6 +70,9 @@ public class ApiUserService {
 
 	@Inject
 	DeviceService deviceService;
+
+	@Inject
+	RoleValidator roleValidator;
 
 	public ApiUser create(
 			@NonNull ApiUser newApiUser,
@@ -247,6 +252,25 @@ public class ApiUserService {
 		return Boolean.TRUE.equals(apiUserRepository.existsByRoleIdIn(roleIds));
 	}
 
-	//TODO Create service for updating user's roles
-	//     Api Actions of new roles need to be subset of logged in user's api actions
+	public void updateRoles(Long apiUserId, Collection<Long> roleIds, Set<ApiAction> permittedApiActions) {
+		//TODO HERE test update roles
+		ApiUser apiUser = apiUserRepository.findById(apiUserId).orElse(null);
+		Set<Role> newRoles = roleRepository.findByIdIn(roleIds);
+		Set<ApiAction> newApiActions = roleUtils.getApiActions(newRoles);
+
+		apiUserValidator.validateUser(apiUser, new ApiException.Source(
+				ApiException.Location.PATH,
+				"apiUserId",
+				"%s".formatted(apiUser),
+				"Valid API User ID"));
+		Set<ApiAction> currentApiActions = roleUtils.getApiActions(Objects.requireNonNull(apiUser).getRoles());
+		roleValidator.validatePreviousApiActions(roleIds, currentApiActions, permittedApiActions);
+
+		roleValidator.validatePermittedApiActions(permittedApiActions);
+		roleValidator.validatePermittedApiActions(newApiActions, permittedApiActions);
+
+		apiUser.setRoles(newRoles);
+		apiUserRepository.update(apiUser);
+	}
+
 }
