@@ -5,8 +5,10 @@ import com.freela.exception.ApiException;
 import com.freela.exception.ForbiddenException;
 import com.freela.exception.InvalidParameterException;
 import com.freela.exception.NotFoundException;
+import com.freela.service.constants.ApiExceptionConstants;
 import com.freela.service.parameter.ApiUserSearchRequest;
 import com.freela.utils.PasswordUtils;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.util.CollectionUtils;
@@ -17,23 +19,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Singleton
 public class ApiUserValidator {
 	private static final Logger log = LoggerFactory.getLogger(ApiUserValidator.class);
-
+	@Value("${com.freela.service.authentication.password-regex}")
+	private String PASSWORD_PATTERN;
+	private Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
 	@Inject
 	PasswordUtils passwordUtils;
 
 	public void validatePassword(String password) {
-		//TODO add more complex validations for password
-		// i.e. Upper Case and Lower Case letter, Number, Special Character (create regex?)
-		if (password == null || password.length() < 8) {
-			throw new InvalidParameterException("Invalid Password", new ApiException.Source(
-					ApiException.Location.BODY,
-					"password",
-					"***",
-					"Min length: 8"));
+		if (password == null) {
+			throw new InvalidParameterException("Invalid Password", ApiExceptionConstants.EMPTY_OR_NULL_PASSWORD);
+		}
+		Matcher matcher = pattern.matcher(password);
+		if (!matcher.matches()) {
+			throw new InvalidParameterException("Invalid Password", ApiExceptionConstants.INVALID_PASSWORD);
 		}
 	}
 
@@ -65,11 +69,7 @@ public class ApiUserValidator {
 
 	public void validateRoleIds(Collection<Long> roleIds) {
 		if (CollectionUtils.isEmpty(roleIds)) {
-			throw new InvalidParameterException("Role IDs cannot be empty or null", new ApiException.Source(
-					ApiException.Location.BODY,
-					"roleIds",
-					"%s".formatted(roleIds),
-					"Valid list of Role IDs"));
+			throw new InvalidParameterException("Role IDs cannot be empty or null", ApiExceptionConstants.EMPTY_OR_NULL_ROLE_IDS);
 		}
 	}
 
@@ -78,12 +78,7 @@ public class ApiUserValidator {
 				|| (StringUtils.isEmpty(contactSearchRequest.getEmail())
 				&& StringUtils.isEmpty(contactSearchRequest.getName()))
 		) {
-			throw new InvalidParameterException("Empty search criteria", new ApiException.Source(
-					ApiException.Location.QUERY,
-					"[email, name]",
-					"Empty or null",
-					"Valid search criteria"
-			));
+			throw new InvalidParameterException("Empty search criteria", ApiExceptionConstants.EMPTY_SEARCH_CRITERIA);
 		}
 
 		if(contactSearchRequest.getEmail() == null) {
@@ -99,13 +94,9 @@ public class ApiUserValidator {
 			String password
 	) {
 		// Validate if there is one user already saved
-		isNullOrNotValidated(savedApiUser, new ApiException.Source(
-				ApiException.Location.BODY,
-				"email",
-				newApiUser.getEmail(),
-				"Unregistered email"
-		));
+		isNullOrNotValidated(savedApiUser, ApiExceptionConstants.getUnregisteredEmail(newApiUser.getEmail()));
 		if(StringUtils.isNotEmpty(password)) {
+			validatePassword(password);
 			validatePassword(password);
 		}
 	}

@@ -72,3 +72,5 @@ com:
           valid-time: 10800
       refresh-token:
         expiration-time: 86400
+      authentication:
+        password-regex: "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$"

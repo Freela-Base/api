@@ -22,6 +22,7 @@ public class Role implements ModelInterface {
 
 	//TODO every time hibernate creates this table
 	// it also creates a useless column "api_actions" in table "role"
+	//https://stackoverflow.com/questions/54610162/entity-mapping-is-creating-unwanted-column-on-the-fly
 	@CollectionTable(
 			name = "role_api_action",
 			joinColumns = @JoinColumn(name = "role_id"))
